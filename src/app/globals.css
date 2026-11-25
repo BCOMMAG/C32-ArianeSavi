@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+
+  --color-wine-950: #2B0815;
+  --color-wine-900: #420D21;
+  --color-wine-800: #4A1226;
+  --color-wine-700: #611B35;
+  --color-cream-50: #F9F6F0;
+  --color-cream-100: #EFE9DF;
+  --color-cream-200: #F4EFE6;
+  --color-champagne: #C8AE88;
+  --color-gold-aged: #9E825C;
+  --color-mauve-muted: #D8C8CE;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: #F9F6F0;
+    color: #24141A;
+    transition: background-color 0.35s ease, color 0.35s ease;
+  }
+
+  html.dark {
+    background-color: #2B0815;
+    color: #F4EFE6;
+  }
+
+  body {
+    overflow-x: clip;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: rgba(200, 174, 136, 0.32);
+    color: #420D21;
+  }
+
+  html.dark ::selection {
+    background-color: rgba(200, 174, 136, 0.28);
+    color: #F4EFE6;
+  }
+}
+
+/* Signature hairline gold divider */
+.gold-divider-v {
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #C8AE88 20%,
+    #9E825C 80%,
+    transparent 100%
+  );
+}
+
+.gold-divider-h {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    #9E825C 18%,
+    #C8AE88 50%,
+    #9E825C 82%,
+    transparent 100%
+  );
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #EFE9DF;
+}
+
+html.dark ::-webkit-scrollbar-track {
+  background: #230611;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #9E825C;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C8AE88;
+}
