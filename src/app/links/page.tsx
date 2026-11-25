@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     canonical: "/links",
   },
   title: "Links Oficiais",
-  description: `Central de atendimento e contatos diretos — ${OFFICE_INFO.fullTitle} (${OFFICE_INFO.oab}).`,
+  description: `Central de atendimento e contatos diretos da ${OFFICE_INFO.fullTitle} (${OFFICE_INFO.oab}).`,
   openGraph: {
     type: "website",
     locale: "pt_BR",
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         type: "image/jpeg",
-        alt: `${OFFICE_INFO.fullTitle} — ${OFFICE_INFO.oab}`,
+        alt: `${OFFICE_INFO.fullTitle} (${OFFICE_INFO.oab})`,
       },
     ],
   },

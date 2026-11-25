@@ -19,7 +19,7 @@ const CREDENTIALS = [
     icon: Scale,
     title: `Inscrição ${OFFICE_INFO.oab}`,
     description:
-      "Atuação regular pela Ordem dos Advogados do Brasil — Seção Paraná.",
+      "Atuação regular pela Ordem dos Advogados do Brasil (Seção Paraná).",
   },
   {
     icon: Award,
@@ -103,7 +103,7 @@ export function AboutLawyerSection() {
               <div className="relative rounded-2xl overflow-hidden bg-[#420D21] shadow-2xl border border-[#9E825C]/30 dark:border-[#C8AE88]/25 aspect-[3/4]">
                 <Image
                   src="/Foto_perfil_otimizada.jpg"
-                  alt={`Dra. ${OFFICE_INFO.lawyerFullName} — ${OFFICE_INFO.oab}`}
+                  alt={`Dra. ${OFFICE_INFO.lawyerFullName} (${OFFICE_INFO.oab})`}
                   fill
                   className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
                   sizes="(max-width: 1024px) 100vw, 450px"
@@ -144,14 +144,15 @@ export function AboutLawyerSection() {
                 com atuação jurídica contínua {OFFICE_INFO.practiceSince}.
               </p>
               <p>
-                Com foco e especialidade em{" "}
+                Com especialização em{" "}
                 <strong className="font-semibold text-[#420D21] dark:text-[#F4EFE6]">
                   Direito do Trabalho
                 </strong>
-                , dedica-se também às demandas de Direito das Famílias e
-                Sucessões, Direito Cível, Consumidor e Bancário — mantendo o
-                propósito de traduzir direitos muitas vezes desconhecidos em
-                orientações claras e seguras.
+                , também conduz demandas em Direito das Famílias e Sucessões,
+                Direito Cível, Consumidor e Bancário. O escritório trabalha com
+                informações jurídicas diretas e acessíveis, para que cada cliente
+                entenda os seus direitos com segurança antes de tomar qualquer
+                decisão.
               </p>
             </div>
 

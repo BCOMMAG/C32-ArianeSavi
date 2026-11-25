@@ -106,7 +106,7 @@ export function Navbar() {
               href="/"
               onClick={handleLogoClick}
               className="flex items-center group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C8AE88] rounded-lg shrink-0"
-              aria-label={`Ir para o início — ${OFFICE_INFO.fullTitle}`}
+              aria-label={`Ir para o início - ${OFFICE_INFO.fullTitle}`}
             >
               <div className="relative h-12 sm:h-14 md:h-15 w-40 sm:w-48 md:w-56 transition-transform duration-300 group-hover:scale-[1.02]">
                 <Image

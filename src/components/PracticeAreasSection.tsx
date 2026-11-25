@@ -57,7 +57,7 @@ export function PracticeAreasSection() {
     return () => window.removeEventListener("selectPracticeArea", onSelectArea);
   }, []);
 
-  // Motor Marquee GPU via GSAP translateX(-50%) — 100% fluido em qualquer tela/DPI
+  // Motor Marquee GPU via GSAP translateX(-50%) com 100% de fluidez em qualquer tela/DPI
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;

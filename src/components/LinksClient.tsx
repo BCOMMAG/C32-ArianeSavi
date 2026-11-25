@@ -28,7 +28,7 @@ const LINK_ACTIONS = [
     icon: WhatsAppIcon,
   },
   {
-    title: "Direito do Trabalho — Valores a Receber",
+    title: "Direito do Trabalho: Valores a Receber",
     subtitle: "Horas extras, rescisão, FGTS, vínculo sem registro e cálculos",
     href: getWhatsAppUrl(
       "Olá! Vim pelo Instagram e gostaria de consultar um advogado sobre direitos trabalhistas e valores a receber."
@@ -56,7 +56,7 @@ const LINK_ACTIONS = [
     icon: Globe,
   },
   {
-    title: "Localização — Capão Raso, Curitiba/PR",
+    title: "Localização: Capão Raso, Curitiba/PR",
     subtitle: "Av. Winston Churchill, 1824 · Traçar rota no Google Maps",
     href: OFFICE_INFO.mapsUrl,
     external: true,
@@ -68,7 +68,7 @@ const LINK_ACTIONS = [
 export function LinksClient() {
   return (
     <div className="min-h-[100dvh] lg:h-[100dvh] lg:overflow-hidden grid grid-cols-1 lg:grid-cols-12 bg-[#F9F6F0] dark:bg-[#2B0815]">
-      {/* Coluna Esquerda Desktop — Identidade Visual Vinho & Dourado */}
+      {/* Coluna Esquerda Desktop: Identidade Visual Vinho e Dourado */}
       <div className="hidden lg:flex lg:col-span-5 relative bg-[#2B0815] text-[#F4EFE6] flex-col justify-between p-10 xl:p-12 border-r border-[#C8AE88]/20 overflow-hidden">
         <GeometricLines variant="links" forceDark />
 

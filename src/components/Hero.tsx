@@ -119,7 +119,7 @@ export function Hero() {
         >
           <Image
             src="/header_desktop.jpeg"
-            alt={`${OFFICE_INFO.fullTitle} — Atendimento jurídico humanizado`}
+            alt={`${OFFICE_INFO.fullTitle}: Atendimento jurídico humanizado`}
             fill
             priority
             quality={92}
@@ -135,7 +135,7 @@ export function Hero() {
         >
           <Image
             src="/header_mobile.jpeg"
-            alt={`${OFFICE_INFO.fullTitle} — Advocacia Trabalhista e Familiar`}
+            alt={`${OFFICE_INFO.fullTitle}: Advocacia Trabalhista e Familiar`}
             fill
             priority
             quality={92}
@@ -144,17 +144,17 @@ export function Hero() {
           />
         </div>
 
-        {/* Gradientes Adaptativos — Modo Claro (Creme luminoso à esquerda / rosto nítido à direita) */}
+        {/* Gradientes Adaptativos: Modo Claro Desktop */}
         <div className="hidden lg:block dark:lg:hidden absolute inset-0 bg-gradient-to-r from-[#F9F6F0] via-[#F9F6F0]/92 via-48% to-transparent" />
         <div className="hidden lg:block dark:lg:hidden absolute inset-0 bg-gradient-to-t from-[#F9F6F0]/80 via-transparent to-[#F9F6F0]/25" />
 
-        {/* Gradientes Adaptativos — Modo Escuro (Vinho Profundo à esquerda / sujeito nítido à direita) */}
+        {/* Gradientes Adaptativos: Modo Escuro Desktop */}
         <div className="hidden dark:lg:block absolute inset-0 bg-gradient-to-r from-[#2B0815] via-[#2B0815]/92 via-50% to-[#2B0815]/30" />
         <div className="hidden dark:lg:block absolute inset-0 bg-gradient-to-t from-[#2B0815]/88 via-transparent to-[#2B0815]/55" />
 
-        {/* Gradientes Mobile (Topo leve pro título + centro limpo pro retrato + base firme pros CTAs) */}
-        <div className="block lg:hidden dark:hidden absolute inset-0 bg-gradient-to-b from-[#F9F6F0]/80 via-transparent via-46% to-[#F9F6F0]/95" />
-        <div className="hidden dark:block dark:lg:hidden absolute inset-0 bg-gradient-to-b from-[#2B0815]/82 via-[#2B0815]/30 via-48% to-[#2B0815]/95" />
+        {/* Gradientes Mobile: Topo apenas pro título, rosto livre no meio e base firme para descrição e botões */}
+        <div className="block lg:hidden dark:hidden absolute inset-0 bg-gradient-to-b from-[#F9F6F0]/85 via-transparent via-40% to-[#F9F6F0]/96" />
+        <div className="hidden dark:block dark:lg:hidden absolute inset-0 bg-gradient-to-b from-[#2B0815]/82 via-[#2B0815]/25 via-42% to-[#2B0815]/96" />
       </div>
 
       {/* Conteúdo Principal */}
@@ -163,15 +163,15 @@ export function Hero() {
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full flex-1 flex flex-col justify-between lg:justify-center"
       >
         <div className="max-w-xl xl:max-w-2xl flex-1 lg:flex-initial flex flex-col justify-between lg:justify-center py-1 sm:py-3">
-          {/* Bloco Superior: Título e Subtítulo */}
-          <div className="text-center lg:text-left pt-1 sm:pt-3 lg:pt-0 lg:pl-6 lg:border-l lg:border-[#9E825C] dark:lg:border-[#C8AE88]">
-            <div className="hero-stagger inline-flex items-center gap-2 text-[11px] sm:text-xs uppercase tracking-[0.2em] font-semibold text-[#9E825C] dark:text-[#C8AE88] mb-2 sm:mb-3">
+          {/* Bloco Superior: Eyebrow somente Desktop + H1 */}
+          <div className="text-center lg:text-left pt-2 sm:pt-3 lg:pt-0 lg:pl-6 lg:border-l lg:border-[#9E825C] dark:lg:border-[#C8AE88]">
+            <div className="hero-stagger hidden lg:inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-semibold text-[#9E825C] dark:text-[#C8AE88] mb-3">
               <span>{OFFICE_INFO.specialtyHeadline}</span>
               <span className="opacity-60">·</span>
               <span>{OFFICE_INFO.oab}</span>
             </div>
 
-            <h1 className="hero-stagger font-serif text-[1.8rem] sm:text-4xl lg:text-[3.5rem] xl:text-[3.85rem] leading-[1.08] tracking-tight text-[#420D21] dark:text-[#F4EFE6] font-semibold mb-2.5 sm:mb-4 drop-shadow-[0_1px_12px_rgba(249,246,240,0.92)] dark:drop-shadow-none">
+            <h1 className="hero-stagger font-serif text-[1.85rem] sm:text-4xl lg:text-[3.5rem] xl:text-[3.85rem] leading-[1.08] tracking-tight text-[#420D21] dark:text-[#F4EFE6] font-semibold mb-2 sm:mb-4 drop-shadow-[0_1px_12px_rgba(249,246,240,0.92)] dark:drop-shadow-none">
               Você pode ter{" "}
               <span className="text-[#9E825C] dark:text-[#C8AE88] italic font-medium">
                 valores a receber
@@ -179,18 +179,29 @@ export function Hero() {
               e não sabe.
             </h1>
 
-            <p className="hero-stagger font-sans text-xs sm:text-base md:text-[17px] text-[#3B262E] dark:text-[#D8C8CE] max-w-lg lg:max-w-xl mx-auto lg:mx-0 leading-snug sm:leading-relaxed mb-3 lg:mb-6 drop-shadow-[0_1px_10px_rgba(249,246,240,0.95)] dark:drop-shadow-none">
-              Atuação técnica e acolhedora em{" "}
+            {/* Subtítulo exibido logo abaixo do H1 apenas no Desktop */}
+            <p className="hero-stagger hidden lg:block font-sans text-[17px] text-[#3B262E] dark:text-[#D8C8CE] max-w-xl leading-relaxed mb-6">
+              Defesa jurídica em{" "}
               <strong className="font-semibold text-[#420D21] dark:text-[#F4EFE6]">
                 Direito do Trabalho
               </strong>
-              , Família e Sucessões, Direito do Consumidor, Cível e Bancário —
-              atendimento presencial em Curitiba e online em todo o país.
+              , Família e Sucessões, Direito do Consumidor, Cível e Bancário.
+              Atendimento presencial em Curitiba e online para todo o Brasil.
             </p>
           </div>
 
-          {/* Bloco Inferior: Botões Magnéticos + Atalhos Rápidos */}
-          <div className="mt-auto lg:mt-0 space-y-3 sm:space-y-5">
+          {/* Bloco Inferior: Subtítulo no Mobile + Botões Magnéticos + Atalhos Rápidos */}
+          <div className="mt-auto lg:mt-0 space-y-2.5 sm:space-y-4">
+            {/* Subtítulo posicionado na região inferior (abaixo do rosto) no Mobile */}
+            <p className="hero-stagger lg:hidden text-center font-sans text-xs sm:text-sm text-[#3B262E] dark:text-[#F4EFE6] max-w-md mx-auto leading-relaxed px-2 py-1.5 rounded-xl bg-[#F9F6F0]/75 dark:bg-[#2B0815]/70 backdrop-blur-[2px]">
+              Atuação em{" "}
+              <strong className="font-semibold text-[#420D21] dark:text-[#C8AE88]">
+                Direito do Trabalho
+              </strong>
+              , Família e Sucessões, Consumidor, Cível e Bancário. Atendimento
+              em Curitiba e online em todo o Brasil.
+            </p>
+
             <div className="hero-stagger flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-2.5 sm:gap-4">
               <MagneticButton strength={0.28}>
                 <a
@@ -222,7 +233,7 @@ export function Hero() {
             </div>
 
             {/* Faixa de Atalhos Rápidos Interativos */}
-            <div className="hero-stagger pt-2.5 sm:pt-3.5 border-t border-[#9E825C]/25 dark:border-[#C8AE88]/20 pr-12 sm:pr-0">
+            <div className="hero-stagger pt-2 sm:pt-3.5 border-t border-[#9E825C]/25 dark:border-[#C8AE88]/20 pr-12 sm:pr-0">
               <p className="text-[10px] sm:text-[11px] uppercase tracking-widest font-semibold text-[#6B545C] dark:text-[#C8AE88] mb-1.5 sm:mb-2.5">
                 Como podemos ajudar você hoje?
               </p>

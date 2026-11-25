@@ -104,7 +104,7 @@ export const METHODOLOGY_STEPS: MethodologyStep[] = [
     shortTitle: "Escuta Qualificada",
     title: "Compreensão humana e jurídica dos fatos",
     description:
-      "O primeiro atendimento é dedicado a ouvir a sua história com calma, identificar urgências — como prazos rescisórios ou liminares — e responder às dúvidas iniciais com linguagem direta.",
+      "O primeiro atendimento é dedicado a ouvir a sua história com calma, identificar urgências (como prazos rescisórios ou liminares) e responder às dúvidas iniciais com linguagem direta.",
     image: "/cards/audiencia.jpg",
     checklist: [
       "Mapeamento completo do histórico profissional ou familiar",
@@ -134,7 +134,7 @@ export const METHODOLOGY_STEPS: MethodologyStep[] = [
     shortTitle: "Estratégia Clara",
     title: "Definição do caminho mais rápido e seguro",
     description:
-      "Traçamos a melhor rota jurídica — desde acordos e escrituras extrajudiciais em cartório até ações judiciais com pedidos de urgência — priorizando eficiência e previsibilidade.",
+      "Traçamos a melhor estratégia jurídica para o caso, abrangendo desde acordos e escrituras extrajudiciais em cartório até ações judiciais de urgência, priorizando eficiência e previsibilidade.",
     image: "/escritorio_editorial.jpg",
     checklist: [
       "Avaliação entre solução extrajudicial célere ou via judicial",
