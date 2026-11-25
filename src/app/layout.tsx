@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SmoothScroll } from "@/components/providers/SmoothScroll";
+import { CustomCursor } from "@/components/ui/CustomCursor";
 import { OFFICE_INFO } from "@/lib/data";
 import { getLegalServiceSchema } from "@/lib/schema";
 
@@ -98,6 +99,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-[#F9F6F0] text-[#24141A] dark:bg-[#2B0815] dark:text-[#F4EFE6] antialiased transition-colors duration-300">
         <ThemeProvider>
+          <CustomCursor />
           <SmoothScroll>{children}</SmoothScroll>
         </ThemeProvider>
       </body>

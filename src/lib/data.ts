@@ -43,80 +43,120 @@ export function getWhatsAppUrl(message?: string): string {
 export interface PillarItem {
   id: string;
   label: string;
+  image: string;
+  alt: string;
   title: string;
   description: string;
-  metricDisplay: string;
 }
 
 export const AUTHORITY_PILLARS: PillarItem[] = [
   {
     id: "trabalhista",
     label: "Foco Trabalhista",
-    metricDisplay: "CLT & Verbas",
-    title: "Apuração minuciosa de verbas",
+    image: "/guide_valores.jpg",
+    alt: "Auditoria de cálculos trabalhistas, folha de ponto e verbas rescisórias",
+    title: "Apuração minuciosa de valores",
     description:
-      "Auditoria técnica de folhas de ponto, holerites, depósitos de FGTS, horas extras e verbas rescisórias não quitadas.",
+      "Conferência técnica de holerites, depósitos de FGTS, horas extras e reflexos rescisórios que costumam passar despercebidos.",
   },
   {
-    id: "formacao",
-    label: "Atuação Sólida",
-    metricDisplay: "Desde 2021",
-    title: "Rigidez técnica e atualização",
+    id: "tecnica",
+    label: "Atuação desde 2021",
+    image: "/escritorio_editorial.jpg",
+    alt: "Biblioteca jurídica e escritório contemporâneo Ariane Savi Advocacia",
+    title: "Sólida base acadêmica",
     description:
-      "Formação em Direito desde dezembro de 2020, com pós-graduação em Direito e Processo do Trabalho e especialização em Famílias.",
+      "Formada em Direito desde dezembro de 2020, pós-graduada em Direito e Processo do Trabalho e pós-graduanda em Famílias.",
   },
   {
-    id: "atendimento",
+    id: "humano",
     label: "Atendimento Humano",
-    metricDisplay: "5.0 ★ Google",
-    title: "Clareza em cada etapa",
+    image: "/cards/audiencia.jpg",
+    alt: "Atendimento próximo, escuta qualificada e orientação clara ao cliente",
+    title: "Clareza sem juridiquês",
     description:
-      "Comunicação acessível, transparente e acolhedora em questões delicadas de trabalho, família, consumo e patrimônio.",
+      "Escuta atenta e transparente em questões sensíveis de trabalho, família, consumo e patrimônio para decisões seguras.",
   },
   {
     id: "alcance",
     label: "Curitiba e Brasil",
-    metricDisplay: "100% Digital",
+    image: "/cards/contratos.jpg",
+    alt: "Assinatura de contratos e atendimento presencial e digital",
     title: "Presencial no Capão Raso e Online",
     description:
-      "Estrutura física em Curitiba/PR e atendimento 100% digital para agilizar análises documentais em todo o território nacional.",
+      "Estrutura presencial acolhedora em Curitiba/PR integrada ao atendimento 100% digital para agilidade em qualquer cidade.",
   },
 ];
 
 export interface MethodologyStep {
   step: string;
+  shortTitle: string;
   title: string;
   description: string;
-  detail: string;
+  image: string;
+  checklist: string[];
+  clientBenefit: string;
 }
 
 export const METHODOLOGY_STEPS: MethodologyStep[] = [
   {
     step: "01",
-    title: "Escuta Qualificada",
+    shortTitle: "Escuta Qualificada",
+    title: "Compreensão humana e jurídica dos fatos",
     description:
-      "Primeiro contato para compreender o contexto dos fatos, prazos legais em curso e necessidades urgentes do seu caso.",
-    detail: "Atendimento presencial em Curitiba ou por videoconferência.",
+      "O primeiro atendimento é dedicado a ouvir a sua história com calma, identificar urgências — como prazos rescisórios ou liminares — e responder às dúvidas iniciais com linguagem direta.",
+    image: "/cards/audiencia.jpg",
+    checklist: [
+      "Mapeamento completo do histórico profissional ou familiar",
+      "Identificação imediata de prazos prescricionais em curso",
+      "Atendimento reservado em Curitiba ou por videoconferência",
+    ],
+    clientBenefit:
+      "Você sai da primeira conversa entendendo exatamente qual é a situação jurídica do seu caso.",
   },
   {
     step: "02",
-    title: "Auditoria Documental e Cálculos",
+    shortTitle: "Auditoria e Cálculos",
+    title: "Conferência técnica de documentos e provas",
     description:
-      "Conferência criteriosa de holerites, contratos, extratos de FGTS, acordos ou certidões para identificar direitos e eventuais valores a receber.",
-    detail: "Análise fundamentada na legislação e jurisprudência dos tribunais.",
+      "Antes de qualquer medida, analisamos holerites, cartões de ponto, extratos de FGTS, contratos bancários ou conversas digitais para detectar direitos violados e valores devidos.",
+    image: "/guide_valores.jpg",
+    checklist: [
+      "Auditoria de verbas rescisórias, horas extras e adicionais",
+      "Validação de provas digitais (WhatsApp, e-mails e documentos)",
+      "Levantamento de taxas bancárias ou negativação indevida",
+    ],
+    clientBenefit:
+      "Clareza sobre os reais valores e direitos envolvidos antes de iniciar qualquer protocolo.",
   },
   {
     step: "03",
-    title: "Estratégia Jurídica Clara",
+    shortTitle: "Estratégia Clara",
+    title: "Definição do caminho mais rápido e seguro",
     description:
-      "Definição da via mais segura e eficiente — composição extrajudicial em cartório, notificação ou medida judicial — com total transparência.",
-    detail: "Linguagem direta, sem termos jurídicos obscuros.",
+      "Traçamos a melhor rota jurídica — desde acordos e escrituras extrajudiciais em cartório até ações judiciais com pedidos de urgência — priorizando eficiência e previsibilidade.",
+    image: "/escritorio_editorial.jpg",
+    checklist: [
+      "Avaliação entre solução extrajudicial célere ou via judicial",
+      "Transparência prévia sobre honorários e Justiça Gratuita",
+      "Estruturação probatória sólida para reduzir riscos",
+    ],
+    clientBenefit:
+      "Segurança jurídica para avançar sem surpresas sobre etapas, custos ou documentos.",
   },
   {
     step: "04",
-    title: "Acompanhamento Contínuo",
+    shortTitle: "Condução Firme",
+    title: "Acompanhamento ativo até o resultado final",
     description:
-      "Condução firme em audiências, negociações e cumprimentos de sentença, mantendo você informado sobre cada movimentação.",
-    detail: "Atenção aos prazos e sigilo profissional absoluto.",
+      "Representamos seus interesses em audiências, perícias, sustentações e cobranças de sentença, mantendo você atualizado de cada movimentação relevante sem precisar ficar cobrando retorno.",
+    image: "/cards/contratos.jpg",
+    checklist: [
+      "Atuação técnica presente em audiências e negociações",
+      "Relatórios objetivos das atualizações processuais",
+      "Sigilo profissional absoluto e atenção ao cumprimento de prazos",
+    ],
+    clientBenefit:
+      "Tranquilidade para saber que seu processo está sendo conduzido com rigor e proximidade.",
   },
 ];

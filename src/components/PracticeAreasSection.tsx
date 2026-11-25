@@ -1,311 +1,386 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
+import { useRef, useState, useEffect, useCallback, useMemo } from "react";
+import Image from "next/image";
 import {
-  Briefcase,
-  Users,
-  ShoppingBag,
-  FileText,
-  Landmark,
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  X,
-} from "lucide-react";
-import { PRACTICE_AREAS, PracticeTopic } from "@/data/areas";
+  PRACTICE_CATEGORIES,
+  LEGAL_DEMANDS,
+  LegalDemandCard,
+} from "@/data/areas";
 import { getWhatsAppUrl } from "@/lib/data";
 import { GeometricLines } from "@/components/ui/GeometricLines";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, useGSAP);
-}
-
-const AREA_ICONS: Record<string, typeof Briefcase> = {
-  trabalhista: Briefcase,
-  familia: Users,
-  consumidor: ShoppingBag,
-  civil: FileText,
-  bancario: Landmark,
-};
+import { MagneticButton } from "@/components/ui/MagneticButton";
+import { WhatsAppIcon } from "@/components/ui/SocialIcons";
+import {
+  ArrowRight,
+  Info,
+  X,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Pause,
+  Play,
+  Scale,
+} from "lucide-react";
+import { gsap } from "gsap";
 
 export function PracticeAreasSection() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [selectedTopic, setSelectedTopic] = useState<{
-    areaName: string;
-    topic: PracticeTopic;
-  } | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
-  const activeArea = PRACTICE_AREAS[activeIndex];
-  const ActiveIcon = AREA_ICONS[activeArea.id] || Briefcase;
+  const [selectedCategory, setSelectedCategory] = useState<string>("todos");
+  const [isPausedByUser, setIsPausedByUser] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<LegalDemandCard | null>(null);
 
-  useEffect(() => {
-    const handleSelect = (e: Event) => {
-      const custom = e as CustomEvent<string>;
-      const idx = PRACTICE_AREAS.findIndex((a) => a.id === custom.detail);
-      if (idx !== -1) setActiveIndex(idx);
-    };
-    window.addEventListener("selectPracticeArea", handleSelect);
-    return () => window.removeEventListener("selectPracticeArea", handleSelect);
-  }, []);
+  const visibleCards = useMemo(() => {
+    if (selectedCategory === "todos") return LEGAL_DEMANDS;
+    return LEGAL_DEMANDS.filter((item) => item.categoryId === selectedCategory);
+  }, [selectedCategory]);
 
-  useGSAP(
-    () => {
-      const prefersReduced = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-      if (prefersReduced) return;
-
-      gsap.from(".areas-intro", {
-        y: 24,
-        opacity: 0,
-        duration: 0.75,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 80%",
-          once: true,
-        },
-      });
-    },
-    { scope: sectionRef }
+  // Lista duplicada para loop horizontal contínuo suave
+  const loopCards = useMemo(
+    () =>
+      visibleCards.length >= 3
+        ? [...visibleCards, ...visibleCards]
+        : visibleCards,
+    [visibleCards]
   );
 
-  const goPrev = () =>
-    setActiveIndex((prev) =>
-      prev === 0 ? PRACTICE_AREAS.length - 1 : prev - 1
-    );
-  const goNext = () =>
-    setActiveIndex((prev) =>
-      prev === PRACTICE_AREAS.length - 1 ? 0 : prev + 1
-    );
+  // Ouvir eventos vindos do Hero / Navbar
+  useEffect(() => {
+    const onSelectArea = (e: Event) => {
+      const custom = e as CustomEvent<string>;
+      if (custom.detail) {
+        setSelectedCategory(custom.detail);
+        setIsPausedByUser(false);
+        if (carouselRef.current) {
+          carouselRef.current.scrollLeft = 0;
+        }
+      }
+    };
+    window.addEventListener("selectPracticeArea", onSelectArea);
+    return () => window.removeEventListener("selectPracticeArea", onSelectArea);
+  }, []);
+
+  // Esteira contínua fluida via requestAnimationFrame (~28px/s a 60fps)
+  useEffect(() => {
+    const container = carouselRef.current;
+    if (!container || loopCards.length <= 2) return;
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+
+    let rafId: number;
+    let accumulator = 0;
+    const speedPerFrame = 0.48;
+
+    const tick = () => {
+      if (!isPausedByUser && !isHovering && container) {
+        accumulator += speedPerFrame;
+        if (accumulator >= 1) {
+          const step = Math.floor(accumulator);
+          accumulator -= step;
+          container.scrollLeft += step;
+
+          const halfWidth = container.scrollWidth / 2;
+          if (halfWidth > 0 && container.scrollLeft >= halfWidth) {
+            container.scrollLeft -= halfWidth;
+          }
+        }
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [isPausedByUser, isHovering, loopCards]);
+
+  // Pausa ao entrar no modal + teclado Esc
+  const closeModal = useCallback(() => setSelectedCard(null), []);
+  useEffect(() => {
+    if (!selectedCard) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeModal();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedCard, closeModal]);
+
+  const handleArrowStep = (dir: number) => {
+    const container = carouselRef.current;
+    if (!container) return;
+    setIsPausedByUser(true);
+    const target = Math.max(0, container.scrollLeft + dir * 350);
+    gsap.to(container, {
+      scrollLeft: target,
+      duration: 0.6,
+      ease: "power2.out",
+    });
+  };
 
   return (
     <section
       id="areas"
       ref={sectionRef}
-      className="relative py-20 sm:py-24 lg:py-28 bg-[#EFE9DF]/65 dark:bg-[#240611] overflow-hidden"
+      className="relative py-20 sm:py-24 bg-[#EFE9DF]/70 dark:bg-[#240611] border-y border-[#9E825C]/20 dark:border-[#C8AE88]/20 overflow-hidden"
     >
       <GeometricLines variant="areas" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-        {/* Cabeçalho da Seção */}
-        <div className="areas-intro flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 sm:mb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Cabeçalho */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between pb-6 border-b border-[#9E825C]/25 dark:border-[#C8AE88]/20 gap-4 mb-6">
           <div className="pl-5 border-l border-[#9E825C] dark:border-[#C8AE88] max-w-2xl">
-            <span className="text-xs uppercase tracking-[0.22em] text-[#9E825C] dark:text-[#C8AE88] font-semibold">
-              Áreas de Atuação
+            <span className="text-xs uppercase tracking-[0.22em] text-[#9E825C] dark:text-[#C8AE88] font-semibold block mb-2">
+              Especialidades Jurídicas
             </span>
-            <h2 className="mt-2 font-serif text-3xl sm:text-4xl lg:text-[2.75rem] font-semibold text-[#420D21] dark:text-[#F4EFE6] leading-tight">
-              Defesa jurídica estruturada para cada necessidade.
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-[#420D21] dark:text-[#F4EFE6] font-semibold leading-[1.12]">
+              Vitrine de soluções para proteger seus direitos
             </h2>
           </div>
 
-          <p className="text-sm sm:text-[15px] text-[#4A373E] dark:text-[#D8C8CE] max-w-md leading-relaxed">
-            Selecione uma especialidade abaixo para explorar as principais
-            demandas atendidas e verificar em detalhes como podemos orientar o
-            seu caso.
+          <p className="text-xs sm:text-sm text-[#4A373E] dark:text-[#D8C8CE] max-w-md leading-relaxed">
+            Filtre por área ou passe o mouse sobre qualquer demanda para pausar
+            e explorar os fundamentos legais e detalhes do atendimento.
           </p>
         </div>
 
-        {/* Barra de Seleção (Tabs Desktop / Navegador Mobile) */}
-        <div className="mb-8">
-          <div className="hidden md:flex flex-wrap gap-2.5">
-            {PRACTICE_AREAS.map((area, idx) => {
-              const Icon = AREA_ICONS[area.id] || Briefcase;
-              const isSelected = idx === activeIndex;
-              return (
-                <button
-                  key={area.id}
-                  type="button"
-                  onClick={() => setActiveIndex(idx)}
-                  className={`inline-flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-medium transition-all duration-250 cursor-pointer border ${
-                    isSelected
-                      ? "bg-[#420D21] text-[#F4EFE6] border-[#420D21] dark:bg-[#C8AE88] dark:text-[#2B0815] dark:border-[#C8AE88] shadow-md"
-                      : "bg-[#F9F6F0] dark:bg-[#3A0C1D] text-[#420D21] dark:text-[#F4EFE6] border-[#9E825C]/25 dark:border-[#C8AE88]/20 hover:border-[#9E825C] dark:hover:border-[#C8AE88]"
-                  }`}
-                >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span>{area.shortName}</span>
-                </button>
-              );
-            })}
-          </div>
+        {/* Menu Superior de Filtros (Pílulas Interativas) */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1.5 mb-5">
+          {PRACTICE_CATEGORIES.map((cat) => {
+            const isActive = selectedCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => {
+                  setSelectedCategory(cat.id);
+                  setIsPausedByUser(false);
+                  if (carouselRef.current) {
+                    carouselRef.current.scrollLeft = 0;
+                  }
+                }}
+                className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition-all duration-300 cursor-pointer ${
+                  isActive
+                    ? "bg-[#420D21] text-[#F4EFE6] dark:bg-[#C8AE88] dark:text-[#2B0815] shadow-sm scale-[1.02]"
+                    : "bg-[#F9F6F0] dark:bg-[#380B1C] text-[#420D21] dark:text-[#D8C8CE] border border-[#9E825C]/25 dark:border-[#C8AE88]/20 hover:border-[#9E825C] dark:hover:border-[#C8AE88]"
+                }`}
+              >
+                {cat.shortName}
+              </button>
+            );
+          })}
+        </div>
 
-          {/* Navegação Compacta Mobile */}
-          <div className="md:hidden flex items-center justify-between gap-2 bg-[#F9F6F0] dark:bg-[#3A0C1D] border border-[#9E825C]/30 dark:border-[#C8AE88]/25 rounded-xl p-2">
+        {/* Barra de Status e Controles da Esteira */}
+        <div className="flex items-center justify-between mb-4 px-1">
+          <button
+            type="button"
+            onClick={() => setIsPausedByUser((p) => !p)}
+            className="inline-flex items-center gap-1.5 text-[11px] px-3 py-1 rounded-full bg-[#F9F6F0] dark:bg-[#380B1C] border border-[#9E825C]/30 dark:border-[#C8AE88]/25 text-[#420D21] dark:text-[#C8AE88] font-medium hover:border-[#9E825C] cursor-pointer transition-colors"
+          >
+            {isPausedByUser ? (
+              <>
+                <Play className="w-3 h-3" />
+                <span>Vitrine pausada · Clique para retomar</span>
+              </>
+            ) : (
+              <>
+                <Pause className="w-3 h-3" />
+                <span>Vitrine em movimento contínuo ({visibleCards.length} frentes)</span>
+              </>
+            )}
+          </button>
+
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={goPrev}
-              aria-label="Área anterior"
-              className="p-2.5 rounded-lg text-[#420D21] dark:text-[#C8AE88] hover:bg-[#EFE9DF] dark:hover:bg-[#4A1226]"
+              onClick={() => handleArrowStep(-1)}
+              aria-label="Anterior"
+              className="p-2 rounded-full bg-[#F9F6F0] dark:bg-[#380B1C] border border-[#9E825C]/30 dark:border-[#C8AE88]/25 text-[#420D21] dark:text-[#F4EFE6] hover:border-[#9E825C] dark:hover:border-[#C8AE88] transition-colors cursor-pointer"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
-
-            <div className="flex items-center gap-2 text-center">
-              <ActiveIcon className="w-4 h-4 text-[#9E825C] dark:text-[#C8AE88]" />
-              <span className="font-serif text-lg font-semibold text-[#420D21] dark:text-[#F4EFE6]">
-                {activeArea.name}
-              </span>
-            </div>
-
             <button
               type="button"
-              onClick={goNext}
-              aria-label="Próxima área"
-              className="p-2.5 rounded-lg text-[#420D21] dark:text-[#C8AE88] hover:bg-[#EFE9DF] dark:hover:bg-[#4A1226]"
+              onClick={() => handleArrowStep(1)}
+              aria-label="Próximo"
+              className="p-2 rounded-full bg-[#F9F6F0] dark:bg-[#380B1C] border border-[#9E825C]/30 dark:border-[#C8AE88]/25 text-[#420D21] dark:text-[#F4EFE6] hover:border-[#9E825C] dark:hover:border-[#C8AE88] transition-colors cursor-pointer"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* Painel Principal da Área Selecionada */}
-        <div className="rounded-2xl bg-[#F9F6F0] dark:bg-[#380B1C] border border-[#9E825C]/25 dark:border-[#C8AE88]/25 shadow-lg overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-12">
-            {/* Coluna Esquerda: Resumo + Destaque */}
-            <div className="lg:col-span-5 p-6 sm:p-8 lg:p-10 bg-[#420D21] dark:bg-[#4A1226] text-[#F4EFE6] flex flex-col justify-between gap-8 border-b lg:border-b-0 lg:border-r border-[#C8AE88]/20">
+        {/* Esteira Horizontal Viva com Imagens em Todos os Cards */}
+        <div
+          ref={carouselRef}
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+          onTouchStart={() => setIsPausedByUser(true)}
+          className="flex items-stretch gap-5 overflow-x-auto no-scrollbar py-2 mb-6"
+        >
+          {loopCards.map((card, loopIdx) => (
+            <div
+              key={`${card.id}-${loopIdx}`}
+              onClick={() => {
+                setIsPausedByUser(true);
+                setSelectedCard(card);
+              }}
+              className="w-[290px] sm:w-[335px] shrink-0 rounded-2xl overflow-hidden flex flex-col justify-between bg-[#F9F6F0] dark:bg-[#380B1C] border border-[#9E825C]/25 dark:border-[#C8AE88]/20 hover:border-[#9E825C] dark:hover:border-[#C8AE88] shadow-xs hover:shadow-[0_14px_34px_rgba(66,13,33,0.14)] hover:-translate-y-1 transition-all duration-400 cursor-pointer group"
+            >
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#C8AE88]/40 text-[#C8AE88] text-[11px] uppercase tracking-[0.16em] font-semibold mb-5">
-                  <ActiveIcon className="w-3.5 h-3.5" />
-                  <span>{activeArea.badge}</span>
+                {/* Imagem Visual + Badges */}
+                <div className="relative w-full aspect-[16/10] bg-[#EFE9DF] dark:bg-[#2B0815] overflow-hidden">
+                  <Image
+                    src={card.image}
+                    alt={card.title}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    sizes="340px"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#2B0815]/60 via-transparent to-transparent pointer-events-none" />
+                  <span className="absolute top-3 left-3 text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F9F6F0]/95 dark:bg-[#2B0815]/90 text-[#420D21] dark:text-[#C8AE88] shadow-xs">
+                    {card.badge}
+                  </span>
+                  <span className="absolute bottom-2.5 left-3 text-[10px] font-medium uppercase tracking-widest text-[#F4EFE6]/95">
+                    {card.categoryName}
+                  </span>
                 </div>
 
-                <h3 className="font-serif text-3xl sm:text-4xl font-semibold leading-tight text-[#F4EFE6]">
-                  {activeArea.name}
-                </h3>
-
-                <p className="mt-3 font-serif italic text-lg sm:text-xl text-[#C8AE88]">
-                  {activeArea.headline}
-                </p>
-
-                <p className="mt-4 text-sm sm:text-[15px] leading-relaxed text-[#D8C8CE]">
-                  {activeArea.description}
-                </p>
+                {/* Conteúdo Textual */}
+                <div className="p-5 pb-3">
+                  <h3 className="font-serif text-xl font-semibold text-[#420D21] dark:text-[#F4EFE6] mb-1.5 leading-snug group-hover:text-[#9E825C] dark:group-hover:text-[#C8AE88] transition-colors">
+                    {card.title}
+                  </h3>
+                  <p className="text-xs leading-relaxed text-[#4A373E] dark:text-[#D8C8CE] line-clamp-3">
+                    {card.summary}
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <a
-                  href={getWhatsAppUrl(activeArea.whatsappPrefill)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#C8AE88] hover:bg-[#d7bf9b] text-[#2B0815] text-sm font-semibold transition-all duration-300 shadow-sm"
+              {/* Ações do Card */}
+              <div className="px-5 pb-4 pt-3 border-t border-[#9E825C]/15 dark:border-[#C8AE88]/15 space-y-2.5 mt-auto">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsPausedByUser(true);
+                    setSelectedCard(card);
+                  }}
+                  className="w-full py-2 px-3 rounded-xl bg-[#EFE9DF]/85 dark:bg-[#2B0815] border border-[#9E825C]/25 dark:border-[#C8AE88]/25 hover:border-[#9E825C] dark:hover:border-[#C8AE88] text-[11px] font-semibold text-[#420D21] dark:text-[#F4EFE6] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <span>{activeArea.ctaLabel}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </a>
-              </div>
-            </div>
+                  <Info className="w-3.5 h-3.5 text-[#9E825C] dark:text-[#C8AE88]" />
+                  <span>Ver direitos e base legal</span>
+                </button>
 
-            {/* Coluna Direita: Lista de Temas Atendidos */}
-            <div className="lg:col-span-7 p-6 sm:p-8 lg:p-10">
-              <div className="flex items-center justify-between mb-5 pb-3 border-b border-[#9E825C]/20 dark:border-[#C8AE88]/20">
-                <span className="text-xs uppercase tracking-[0.18em] font-semibold text-[#9E825C] dark:text-[#C8AE88]">
-                  Principais Demandas e Direitos
-                </span>
-                <span className="text-xs text-[#6B545C] dark:text-[#D8C8CE]">
-                  Clique para detalhar
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {activeArea.topics.map((topic) => (
-                  <button
-                    key={topic.title}
-                    type="button"
-                    onClick={() =>
-                      setSelectedTopic({
-                        areaName: activeArea.name,
-                        topic,
-                      })
-                    }
-                    className="group text-left p-4 rounded-xl bg-[#EFE9DF]/65 dark:bg-[#2B0815]/75 border border-[#9E825C]/20 dark:border-[#C8AE88]/15 hover:border-[#9E825C] dark:hover:border-[#C8AE88] transition-all duration-250 flex flex-col justify-between cursor-pointer"
+                <div className="flex items-center justify-between text-[11px] font-semibold">
+                  <a
+                    href={getWhatsAppUrl(card.whatsappMessage)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1.5 text-[#420D21] dark:text-[#C8AE88] hover:underline"
                   >
-                    <div>
-                      <h4 className="text-sm font-semibold text-[#420D21] dark:text-[#F4EFE6] group-hover:text-[#9E825C] dark:group-hover:text-[#C8AE88] transition-colors leading-snug">
-                        {topic.title}
-                      </h4>
-                      <p className="mt-2 text-xs leading-relaxed text-[#4A373E] dark:text-[#D8C8CE] line-clamp-3">
-                        {topic.summary}
-                      </p>
-                    </div>
-                    {topic.legalBasis && (
-                      <span className="mt-3 pt-2.5 border-t border-[#9E825C]/15 dark:border-[#C8AE88]/15 text-[11px] font-medium text-[#9E825C] dark:text-[#C8AE88] inline-flex items-center justify-between">
-                        <span>{topic.legalBasis}</span>
-                        <ArrowRight className="w-3.5 h-3.5 opacity-60 group-hover:translate-x-0.5 transition-transform" />
-                      </span>
-                    )}
-                  </button>
-                ))}
+                    <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366]" />
+                    <span>Conversar com Advogado</span>
+                  </a>
+
+                  <span className="inline-flex items-center gap-1 text-[#9E825C] dark:text-[#D8C8CE]">
+                    <span>Expandir</span>
+                    <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Modal Informativo do Tema */}
-      {selectedTopic && (
+      {/* Modal Quick View do Card Jurídico */}
+      {selectedCard && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1B040C]/75 backdrop-blur-sm"
-          onClick={() => setSelectedTopic(null)}
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1B040C]/80 backdrop-blur-md animate-fade-in"
+          onClick={closeModal}
         >
           <div
-            className="w-full max-w-lg rounded-2xl bg-[#F9F6F0] dark:bg-[#380B1C] border border-[#9E825C]/40 dark:border-[#C8AE88]/30 shadow-2xl p-6 sm:p-8"
+            className="relative max-w-lg w-full max-h-[90vh] overflow-y-auto bg-[#F9F6F0] dark:bg-[#380B1C] text-[#420D21] dark:text-[#F4EFE6] rounded-3xl border border-[#9E825C]/35 dark:border-[#C8AE88]/30 shadow-2xl p-6 sm:p-8 space-y-5 animate-fade-in-up"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#9E825C] dark:text-[#C8AE88]">
-                  {selectedTopic.areaName}
+                <span className="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#EFE9DF] dark:bg-[#2B0815] text-[#9E825C] dark:text-[#C8AE88] border border-[#9E825C]/25 inline-block mb-2">
+                  {selectedCard.categoryName} · {selectedCard.badge}
                 </span>
-                <h3 className="mt-1 font-serif text-2xl sm:text-3xl font-semibold text-[#420D21] dark:text-[#F4EFE6]">
-                  {selectedTopic.topic.title}
+                <h3 className="font-serif text-2xl sm:text-3xl font-semibold leading-snug">
+                  {selectedCard.title}
                 </h3>
               </div>
               <button
                 type="button"
-                onClick={() => setSelectedTopic(null)}
+                onClick={closeModal}
                 aria-label="Fechar janela"
-                className="p-2 rounded-full border border-[#9E825C]/30 text-[#420D21] dark:text-[#F4EFE6] hover:bg-[#EFE9DF] dark:hover:bg-[#4A1226] cursor-pointer"
+                className="p-2 rounded-full hover:bg-[#EFE9DF] dark:hover:bg-[#4A1226] transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="gold-divider-h my-5" />
+            <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden border border-[#9E825C]/25">
+              <Image
+                src={selectedCard.image}
+                alt={selectedCard.title}
+                fill
+                className="object-cover"
+                sizes="520px"
+              />
+            </div>
 
-            <p className="text-sm sm:text-[15px] leading-relaxed text-[#4A373E] dark:text-[#D8C8CE]">
-              {selectedTopic.topic.summary}
+            <p className="text-sm leading-relaxed text-[#4A373E] dark:text-[#D8C8CE]">
+              {selectedCard.details}
             </p>
 
-            {selectedTopic.topic.legalBasis && (
-              <div className="mt-4 px-4 py-3 rounded-xl bg-[#EFE9DF] dark:bg-[#2B0815] border border-[#9E825C]/25 dark:border-[#C8AE88]/20 text-xs text-[#420D21] dark:text-[#C8AE88]">
-                <strong>Previsão Legal:</strong> {selectedTopic.topic.legalBasis}
-              </div>
-            )}
+            <div className="space-y-2.5">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#9E825C] dark:text-[#C8AE88]">
+                Principais Pontos Analisados
+              </p>
+              <ul className="space-y-2">
+                {selectedCard.highlights.map((item, i) => (
+                  <li
+                    key={i}
+                    className="flex items-start gap-2.5 text-xs sm:text-sm text-[#420D21] dark:text-[#F4EFE6]"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-[#9E825C] dark:text-[#C8AE88] shrink-0 mt-0.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-            <div className="mt-6 flex flex-col sm:flex-row gap-3">
-              <a
-                href={getWhatsAppUrl(
-                  `Olá! Gostaria de conversar com um advogado sobre: ${selectedTopic.topic.title} (${selectedTopic.areaName}).`
-                )}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#420D21] hover:bg-[#5B1530] dark:bg-[#C8AE88] dark:hover:bg-[#dbc49f] text-[#F4EFE6] dark:text-[#2B0815] text-sm font-semibold transition-colors"
-              >
-                <span>Conversar com Advogado</span>
-                <ArrowRight className="w-4 h-4" />
-              </a>
-              <button
-                type="button"
-                onClick={() => setSelectedTopic(null)}
-                className="px-5 py-3 rounded-xl border border-[#9E825C]/35 text-sm font-medium text-[#420D21] dark:text-[#F4EFE6] hover:bg-[#EFE9DF] dark:hover:bg-[#4A1226] cursor-pointer"
-              >
-                Fechar
-              </button>
+            <div className="px-4 py-3 rounded-xl bg-[#EFE9DF] dark:bg-[#2B0815] border border-[#9E825C]/25 dark:border-[#C8AE88]/20 text-xs flex items-center gap-2 text-[#420D21] dark:text-[#C8AE88]">
+              <Scale className="w-4 h-4 shrink-0" />
+              <span>
+                <strong>Base Legal:</strong> {selectedCard.legalBasis}
+              </span>
+            </div>
+
+            <div className="pt-2">
+              <MagneticButton strength={0.2} className="w-full">
+                <a
+                  href={getWhatsAppUrl(selectedCard.whatsappMessage)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-pill w-full bg-[#420D21] hover:bg-[#5B1530] text-[#F4EFE6] dark:bg-[#C8AE88] dark:hover:bg-[#dbc49f] dark:text-[#2B0815] py-3.5 px-6 text-xs sm:text-sm font-semibold gap-2 shadow-sm hover-lift cursor-pointer"
+                >
+                  <WhatsAppIcon className="w-4 h-4 text-[#25D366] dark:text-[#2B0815]" />
+                  <span>Consultar Advogado sobre este Caso</span>
+                </a>
+              </MagneticButton>
             </div>
           </div>
         </div>

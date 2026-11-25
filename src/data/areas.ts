@@ -1,240 +1,211 @@
-export interface PracticeTopic {
+export interface LegalDemandCard {
+  id: string;
+  categoryId: string;
+  categoryName: string;
+  badge: string;
   title: string;
   summary: string;
-  legalBasis?: string;
+  details: string;
+  legalBasis: string;
+  image: string;
+  highlights: string[];
+  whatsappMessage: string;
 }
 
-export interface PracticeArea {
+export interface PracticeCategory {
   id: string;
-  slug: string;
-  name: string;
   shortName: string;
-  badge: string;
-  headline: string;
-  description: string;
-  ctaLabel: string;
-  whatsappPrefill: string;
-  topics: PracticeTopic[];
+  name: string;
 }
 
-export const PRACTICE_AREAS: PracticeArea[] = [
+export const PRACTICE_CATEGORIES: PracticeCategory[] = [
+  { id: "todos", shortName: "Todas as Áreas", name: "Todas as Especialidades" },
+  { id: "trabalhista", shortName: "Direito do Trabalho", name: "Direito do Trabalho" },
+  { id: "familia", shortName: "Família e Sucessões", name: "Direito de Família e Sucessões" },
+  { id: "consumidor", shortName: "Consumidor", name: "Direito do Consumidor" },
+  { id: "civil", shortName: "Direito Cível", name: "Direito Cível" },
+  { id: "bancario", shortName: "Direito Bancário", name: "Direito Bancário" },
+];
+
+export const LEGAL_DEMANDS: LegalDemandCard[] = [
   {
-    id: "trabalhista",
-    slug: "direito-do-trabalho",
-    name: "Direito do Trabalho",
-    shortName: "Trabalhista",
-    badge: "Especialidade Principal",
-    headline: "Você pode ter valores a receber e não sabe.",
-    description:
-      "Atuação técnica na defesa dos direitos de trabalhadores urbanos, rurais, temporários e domésticos. Auditoria completa de cálculos trabalhistas, reversão de irregularidades e busca pela integralidade de verbas devidas.",
-    ctaLabel: "Consultar Advogado Trabalhista",
-    whatsappPrefill:
-      "Olá! Gostaria de consultar um advogado sobre uma questão de Direito do Trabalho e verificar possíveis verbas a receber.",
-    topics: [
-      {
-        title: "Horas Extras e Banco de Horas Irregular",
-        summary:
-          "Apuração de jornada além das 8h diárias/44h semanais, horas in itinere suprimidas, registros britânicos inválidos e adicional mínimo de 50% ou 100% em domingos e feriados.",
-        legalBasis: "Art. 59 da CLT e Súmula 338 do TST",
-      },
-      {
-        title: "Verbas Rescisórias e Vínculo sem Registro (CTPS)",
-        summary:
-          "Cobrança de saldo de salário, férias + 1/3, 13º proporcional, aviso prévio proporcional, liberação de FGTS + multa de 40%, além de reconhecimento de vínculo em caso de pejotização fraudulenta.",
-        legalBasis: "Arts. 3º, 467 e 477 da CLT · Lei 12.506/11",
-      },
-      {
-        title: "Rescisão Indireta e Reversão de Justa Causa",
-        summary:
-          "Pedido de desligamento com recebimento integral das verbas quando há falta grave do empregador (atraso salarial, ausência de FGTS, rigor excessivo) ou anulação de justa causa abusiva.",
-        legalBasis: "Arts. 482 e 483 da CLT",
-      },
-      {
-        title: "Acidente de Trabalho, Doença Ocupacional e Limbo Previdenciário",
-        summary:
-          "Estabilidade provisória de 12 meses após alta do auxílio-doença acidentário (B91), indenização por danos morais/materiais (LER/DORT, Burnout) e salários no limbo entre INSS e empresa.",
-        legalBasis: "Art. 118 da Lei 8.213/91",
-      },
-      {
-        title: "Insalubridade, Periculosidade e Adicional Noturno",
-        summary:
-          "Cobrança de adicionais por exposição a agentes nocivos (10%, 20% ou 40%), risco acentuado com inflamáveis/eletricidade/motocicleta (30%) e trabalho entre 22h e 5h com hora reduzida.",
-        legalBasis: "Arts. 73, 189 e 193 da CLT · NRs 15 e 16",
-      },
-      {
-        title: "Assédio Moral, Desvio de Função e Estabilidades",
-        summary:
-          "Proteção contra metas abusivas e humilhações, diferenças salariais por acúmulo/desvio de função ou equiparação salarial, além de defesa da estabilidade da gestante e cipeiro.",
-        legalBasis: "Arts. 10 II ADCT, 461 e 223-A da CLT",
-      },
+    id: "horas-extras-verbas",
+    categoryId: "trabalhista",
+    categoryName: "Direito do Trabalho",
+    badge: "Valores a Receber",
+    title: "Horas Extras e Verbas Rescisórias",
+    summary:
+      "Auditoria minuciosa de rescisões, banco de horas irregular, intervalos reduzidos e depósitos ausentes de FGTS.",
+    details:
+      "Muitos trabalhadores deixam a empresa sem conferir se todas as horas além da jornada normal, reflexos no 13º salário, férias + 1/3, aviso prévio proporcional e multa de 40% do FGTS foram quitados corretamente.",
+    legalBasis: "Arts. 59, 467 e 477 da CLT · Súmula 338 TST",
+    image: "/guide_valores.jpg",
+    highlights: [
+      "Apuração de horas extras e adicional noturno não lançados",
+      "Liberação e cobrança de FGTS em atraso com multa de 40%",
+      "Multa pelo atraso no pagamento rescisório (Art. 477 CLT)",
     ],
+    whatsappMessage:
+      "Olá! Gostaria de consultar um advogado para conferir horas extras e possíveis valores a receber na rescisão trabalhista.",
   },
   {
-    id: "familia",
-    slug: "direito-de-familia-e-sucessoes",
-    name: "Direito de Família e Sucessões",
-    shortName: "Família e Sucessões",
-    badge: "Sigilo e Acolhimento",
-    headline: "Soluções jurídicas seguras para relações familiares e patrimônio.",
-    description:
-      "Condução humanizada, sob rigoroso segredo de justiça quando aplicável, em demandas de divórcio, pensão alimentícia, guarda de filhos e regularização patrimonial em inventários e partilhas.",
-    ctaLabel: "Conversar com Advogado de Família",
-    whatsappPrefill:
-      "Olá! Gostaria de buscar orientação jurídica na área de Direito de Família e Sucessões.",
-    topics: [
-      {
-        title: "Pensão Alimentícia, Revisional e Execução",
-        summary:
-          "Fixação com base no trinômio necessidade, possibilidade e proporcionalidade, pedido de revisão ou exoneração e cobrança de atrasados sob pena de prisão civil ou penhora de bens.",
-        legalBasis: "Lei 5.478/68 · Arts. 523 e 528 do CPC",
-      },
-      {
-        title: "Divórcio Consensual, Litigioso e União Estável",
-        summary:
-          "Divórcio direto em cartório ou judicial, dissolução e reconhecimento de união estável, partilha equitativa de imóveis, veículos e dívidas sob o regime de bens aplicável.",
-        legalBasis: "EC 66/2010 · Art. 1.723 do Código Civil",
-      },
-      {
-        title: "Guarda Compartilhada, Convivência e Alienação Parental",
-        summary:
-          "Definição de residência base e regime equilibrado de visitas priorizando o melhor interesse da criança, além de medidas contra atos de alienação parental.",
-        legalBasis: "Lei 13.058/14 · Lei 12.318/10",
-      },
-      {
-        title: "Inventário Judicial, Extrajudicial e Alvarás",
-        summary:
-          "Regularização de heranças em cartório (mais célere e econômico quando há consenso) ou via judicial com proteção ao direito real de habitação do cônjuge sobrevivente e levantamento de valores.",
-        legalBasis: "Art. 1.784 CC · Art. 611 CPC · Lei 6.858/80",
-      },
-      {
-        title: "Reconhecimento de Paternidade e Multiparentalidade",
-        summary:
-          "Ações de investigação de paternidade com pedido de exame de DNA e reconhecimento judicial ou em cartório de filiação socioafetiva.",
-        legalBasis: "Súmula 301 STJ · Tema 622 STF",
-      },
-      {
-        title: "Medidas Protetivas, Curatela e Planejamento Familiar",
-        summary:
-          "Acompanhamento de medidas de urgência, curatela de pessoas incapazes, pactos antenupciais e contratos de convivência para segurança jurídica prévia.",
-        legalBasis: "Lei 11.340/06 · Estatuto da Pessoa com Deficiência",
-      },
+    id: "pejotizacao-sem-registro",
+    categoryId: "trabalhista",
+    categoryName: "Direito do Trabalho",
+    badge: "Vínculo CLT",
+    title: "Trabalho como PJ ou Sem Registro",
+    summary:
+      "Reconhecimento de vínculo empregatício quando há rotina subordinada e exigência fraudulenta de MEI/CNPJ.",
+    details:
+      "Se você cumpria horários, recebia ordens diretas e prestava serviços habituais sob fachada de contrato PJ ou sem assinatura em carteira, a Justiça do Trabalho reconhece o vínculo e assegura todos os direitos retroativos.",
+    legalBasis: "Arts. 2º, 3º e 9º da CLT",
+    image: "/cards/pj_vinculo.jpg",
+    highlights: [
+      "Anotação retroativa da Carteira de Trabalho (CTPS)",
+      "Férias, 13º salário e FGTS de todo o período trabalhado",
+      "Aceitação de prints de WhatsApp, e-mails e crachás como prova",
     ],
+    whatsappMessage:
+      "Olá! Trabalho ou trabalhei como PJ / sem registro e gostaria de conversar com um advogado sobre vínculo trabalhista.",
   },
   {
-    id: "consumidor",
-    slug: "direito-do-consumidor",
-    name: "Direito do Consumidor",
-    shortName: "Consumidor",
+    id: "rescisao-indireta-justa-causa",
+    categoryId: "trabalhista",
+    categoryName: "Direito do Trabalho",
+    badge: "Rescisão Protetiva",
+    title: "Rescisão Indireta e Justa Causa",
+    summary:
+      "Desligamento sem perda de direitos diante de faltas graves do empregador ou anulação de justa causa injusta.",
+    details:
+      "Atrasos salariais recorrentes, falta de depósito de FGTS, assédio moral ou rigor excessivo permitem encerrar o contrato pela via judicial mantendo seguro-desemprego, FGTS + 40% e aviso prévio.",
+    legalBasis: "Arts. 482 e 483 da CLT · Art. 223-A CLT",
+    image: "/cards/contratos.jpg",
+    highlights: [
+      "Preservação integral das verbas na rescisão indireta",
+      "Reversão judicial de justa causa aplicada sem comprovação",
+      "Reparação por assédio moral, acúmulo ou desvio de função",
+    ],
+    whatsappMessage:
+      "Olá! Preciso falar com um advogado sobre rescisão indireta ou reversão de justa causa.",
+  },
+  {
+    id: "acidente-saude-trabalho",
+    categoryId: "trabalhista",
+    categoryName: "Direito do Trabalho",
+    badge: "Estabilidade & Saúde",
+    title: "Acidente, Burnout e Adicionais",
+    summary:
+      "Estabilidade de 12 meses, indenização por doença ocupacional, insalubridade e periculosidade não pagas.",
+    details:
+      "Trabalhadores acometidos por acidentes típicos, LER/DORT ou adoecimento psíquico ligado ao trabalho têm proteção legal de estabilidade após auxílio acidentário (B91), além do direito a adicionais de risco quando expostos sem EPI eficaz.",
+    legalBasis: "Art. 118 Lei 8.213/91 · NRs 15 e 16",
+    image: "/cards/saude.jpg",
+    highlights: [
+      "Estabilidade provisória de 12 meses após alta do INSS (B91)",
+      "Salários devidos no chamado limbo previdenciário",
+      "Insalubridade (10% a 40%) e periculosidade (30%)",
+    ],
+    whatsappMessage:
+      "Olá! Gostaria de buscar orientação jurídica sobre acidente de trabalho, doença ocupacional ou adicionais.",
+  },
+  {
+    id: "pensao-guarda-familia",
+    categoryId: "familia",
+    categoryName: "Família e Sucessões",
+    badge: "Segredo de Justiça",
+    title: "Pensão Alimentícia, Guarda e Convivência",
+    summary:
+      "Fixação justa, revisional ou execução urgente de pensão alimentícia e organização equilibrada da guarda de filhos.",
+    details:
+      "Condução firme e humanizada sob sigilo judicial, observando o trinômio necessidade, possibilidade e proporcionalidade para garantir proteção imediata às crianças e equilíbrio financeiro aos genitores.",
+    legalBasis: "Lei 5.478/68 · Art. 528 CPC · Lei 13.058/14",
+    image: "/cards/familia.jpg",
+    highlights: [
+      "Fixação liminar e cobrança urgente de alimentos atrasados",
+      "Regulamentação de guarda compartilhada e visitas",
+      "Revisão de valores em caso de mudança de renda",
+    ],
+    whatsappMessage:
+      "Olá! Gostaria de conversar com um advogado sobre pensão alimentícia ou guarda de filhos.",
+  },
+  {
+    id: "divorcio-inventario",
+    categoryId: "familia",
+    categoryName: "Família e Sucessões",
+    badge: "Extrajudicial & Judicial",
+    title: "Divórcio, Partilha e Inventários",
+    summary:
+      "Regularização célere de divórcios em cartório ou judiciais, união estável e inventários sem entraves.",
+    details:
+      "Quando há consenso, o divórcio e o inventário extrajudicial em Cartório de Notas oferecem economia de tempo e previsibilidade; havendo litígio, atuamos na proteção rigorosa do patrimônio e do direito real de habitação.",
+    legalBasis: "EC 66/2010 · Art. 1.784 CC · Art. 611 CPC",
+    image: "/cards/civil.jpg",
+    highlights: [
+      "Divórcio consensual e união estável com partilha de bens",
+      "Abertura ágil de inventário e levantamento de alvarás",
+      "Proteção contra dilapidação ou retenção de bens comuns",
+    ],
+    whatsappMessage:
+      "Olá! Gostaria de solicitar atendimento jurídico para divórcio, união estável ou inventário.",
+  },
+  {
+    id: "consumidor-negativacao-aereo",
+    categoryId: "consumidor",
+    categoryName: "Direito do Consumidor",
     badge: "Código de Defesa do Consumidor",
-    headline: "Reparação eficaz contra abusos contratuais e falhas na prestação de serviços.",
-    description:
-      "Atuação baseada no Código de Defesa do Consumidor (CDC) para cancelar cobranças indevidas, corrigir prejuízos financeiros e assegurar direitos diante de fornecedores, companhias aéreas e operadoras de saúde.",
-    ctaLabel: "Solicitar Atendimento ao Consumidor",
-    whatsappPrefill:
-      "Olá! Gostaria de falar com um advogado sobre um problema de Direito do Consumidor.",
-    topics: [
-      {
-        title: "Negativação Indevida (SPC/Serasa) e Repetição de Indébito",
-        summary:
-          "Retirada liminar urgente de apontamentos por dívidas pagas, prescritas ou inexistentes, aliada à restituição em dobro de valores cobrados indevidamente.",
-        legalBasis: "Art. 42, parágrafo único do CDC · Súmulas 359 e 385 STJ",
-      },
-      {
-        title: "Transporte Aéreo: Voos Cancelados, Atrasos e Bagagem",
-        summary:
-          "Assistência material não prestada, overbooking, perda de conexão, atraso superior a 4 horas ou extravio definitivo de bagagens.",
-        legalBasis: "CDC e Resolução 400 da ANAC",
-      },
-      {
-        title: "Planos de Saúde e Negativas de Cobertura",
-        summary:
-          "Tutelas de urgência em até 24h contra negativas abusivas de cirurgias, home care, exames ou terapias multidisciplinares, além de revisão de reajustes por faixa etária.",
-        legalBasis: "Lei 9.656/98 · Súmula 608 STJ · Tema 952 STJ",
-      },
-      {
-        title: "Compras Online, Vícios de Produto e Atraso de Imóveis",
-        summary:
-          "Responsabilidade solidária de marketplaces por entrega não realizada, direito de arrependimento em 7 dias, troca de produto defeituoso sem reparo em 30 dias e atraso na entrega de imóvel.",
-        legalBasis: "Arts. 18, 35 e 49 do CDC · Temas 970 e 971 STJ",
-      },
+    title: "Negativação Indevida, Saúde e Voos",
+    summary:
+      "Liminares rápidas para limpar nome indevido, liberar coberturas de planos de saúde e indenizar falhas graves.",
+    details:
+      "Defesa do consumidor contra inclusão abusiva em SPC/Serasa, negativas urgentes de cirurgias ou tratamentos médicos, atrasos severos ou cancelamentos de voos e compras online não entregues.",
+    legalBasis: "Arts. 14, 18 e 42 CDC · Súmulas 359 e 608 STJ",
+    image: "/cards/consumidor.jpg",
+    highlights: [
+      "Retirada urgente de restrição no CPF/CNPJ e devolução em dobro",
+      "Liminares de saúde para cirurgias, exames e terapias",
+      "Indenização por cancelamento de voo e extravio de bagagem",
     ],
+    whatsappMessage:
+      "Olá! Gostaria de consultar um advogado sobre Direito do Consumidor (negativação, plano de saúde ou voo).",
   },
   {
-    id: "civil",
-    slug: "direito-civil",
-    name: "Direito Cível",
-    shortName: "Cível",
-    badge: "Contratos, Imóveis e Indenizações",
-    headline: "Segurança jurídica patrimonial, contratual e responsabilidade civil.",
-    description:
-      "Assessoria consultiva e contenciosa voltada à elaboração e revisão de contratos, recuperação de crédito, proteção possessória e reparação integral de danos materiais, morais e estéticos.",
-    ctaLabel: "Buscar Orientação Jurídica Cível",
-    whatsappPrefill:
-      "Olá! Preciso de orientação jurídica na área de Direito Cível.",
-    topics: [
-      {
-        title: "Elaboração, Revisão e Distrato de Contratos",
-        summary:
-          "Prevenção de litígios em contratos de compra e venda, locação, prestação de serviços e distrato imobiliário com restituição proporcional de valores.",
-        legalBasis: "Art. 421 e seguintes do Código Civil · Lei 13.786/18",
-      },
-      {
-        title: "Responsabilidade Civil e Indenizações",
-        summary:
-          "Reparação por acidentes de trânsito, danos à honra/imagem, erro médico ou hospitalar e falhas graves em serviços técnicos, incluindo lucros cessantes e dano estético cumulável.",
-        legalBasis: "Arts. 186 e 927 do CC · Súmula 387 STJ",
-      },
-      {
-        title: "Cobrança, Execução de Títulos e Despejo",
-        summary:
-          "Ações monitórias e execuções de notas promissórias, cheques ou contratos com assinatura de testemunhas, além de ações locatícias de despejo e revisional de aluguel.",
-        legalBasis: "Art. 784 CPC · Lei 8.245/91 (Lei do Inquilinato)",
-      },
-      {
-        title: "Direito Imobiliário: Usucapião e Ações Possessórias",
-        summary:
-          "Regularização registral de imóveis por usucapião judicial ou extrajudicial em cartório, reintegração e manutenção de posse e direito de vizinhança.",
-        legalBasis: "Art. 1.238 CC · Art. 216-A da Lei de Registros Públicos",
-      },
-    ],
-  },
-  {
-    id: "bancario",
-    slug: "direito-bancario",
-    name: "Direito Bancário",
-    shortName: "Bancário",
+    id: "bancario-fraudes-juros",
+    categoryId: "bancario",
+    categoryName: "Direito Bancário",
     badge: "Proteção Financeira",
-    headline: "Defesa contra fraudes bancárias, empréstimos consignados não solicitados e juros abusivos.",
-    description:
-      "Análise técnica de contratos bancários e defesa rápida em fraudes digitais, com foco na preservação do mínimo existencial, desconstituição de débitos fraudulentos e revisão de cláusulas abusivas.",
-    ctaLabel: "Falar com Advogado Bancário",
-    whatsappPrefill:
-      "Olá! Gostaria de consultar um advogado sobre uma demanda de Direito Bancário.",
-    topics: [
-      {
-        title: "Golpes Digitais, Fraudes no Pix e Consignados Indevidos",
-        summary:
-          "Responsabilidade objetiva da instituição financeira por falha de segurança em empréstimos contratados por terceiros, invasão de aplicativo, falsa central e descontos ilegais em benefício do INSS.",
-        legalBasis: "Súmula 479 do STJ · Art. 14 do CDC",
-      },
-      {
-        title: "Revisão de Juros Abusivos e Venda Casada",
-        summary:
-          "Comparação pericial com a Taxa Média de Mercado do Banco Central (BACEN), afastamento de seguros prestamistas ou tarifas embutidas sem anuência (TAC/TEC) e recálculo do saldo.",
-        legalBasis: "Tema 28 e Súmulas 539 e 541 do STJ",
-      },
-      {
-        title: "Defesa em Busca e Apreensão e Penhoras Indevidas",
-        summary:
-          "Atuação urgente em apreensão de veículos financiados (análise de notificação e adimplemento substancial), bem como desbloqueio de salários e aposentadorias atingidos via Sisbajud.",
-        legalBasis: "Decreto-Lei 911/69 · Art. 833, IV do CPC",
-      },
-      {
-        title: "Proteção do Bem de Família e Renegociação Estruturada",
-        summary:
-          "Afastamento de constrições sobre o único imóvel residencial da família e revisão de dívidas com encargos moratórios abusivos ou comissão de permanência cumulada.",
-        legalBasis: "Lei 8.009/90 · Súmula 472 do STJ",
-      },
+    title: "Golpes no Pix, Consignado e Juros",
+    summary:
+      "Cancelamento de empréstimos não contratados, devolução de descontos no INSS e proteção contra fraudes digitais.",
+    details:
+      "Instituições financeiras respondem objetivamente por falhas na segurança digital e contratação fraudulenta em nome do cliente, cabendo suspensão liminar dos descontos e recomposição do patrimônio.",
+    legalBasis: "Súmula 479 STJ · Art. 833 IV CPC · Tema 28 STJ",
+    image: "/cards/bancario.jpg",
+    highlights: [
+      "Suspensão urgente de empréstimo consignado não solicitado",
+      "Responsabilidade bancária em golpes digitais e invasão de app",
+      "Desbloqueio de verba salarial e revisão de taxas acima da média BACEN",
     ],
+    whatsappMessage:
+      "Olá! Preciso falar com um advogado sobre fraude bancária, empréstimo não reconhecido ou juros abusivos.",
+  },
+  {
+    id: "civil-contratos-imoveis",
+    categoryId: "civil",
+    categoryName: "Direito Cível",
+    badge: "Segurança Patrimonial",
+    title: "Contratos, Imóveis e Indenizações",
+    summary:
+      "Revisão contratual, cobrança e execução de dívidas, usucapião, locação e responsabilidade civil.",
+    details:
+      "Prevenção e solução de conflitos envolvendo negócios particulares, distratos, locação residencial/comercial, regularização de imóveis e reparação integral por danos materiais, morais e estéticos.",
+    legalBasis: "Arts. 186 e 927 CC · Art. 784 CPC · Lei 8.245/91",
+    image: "/escritorio_editorial.jpg",
+    highlights: [
+      "Elaboração e revisão segura de contratos e distratos",
+      "Usucapião extrajudicial em cartório ou judicial e reintegração",
+      "Ações indenizatórias por danos materiais e morais",
+    ],
+    whatsappMessage:
+      "Olá! Gostaria de buscar orientação jurídica na área de Direito Cível e contratos.",
   },
 ];

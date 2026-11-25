@@ -1,11 +1,13 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { Award, BookOpenCheck, Scale, ArrowUpRight } from "lucide-react";
 import { GeometricLines } from "@/components/ui/GeometricLines";
+import { MagneticButton } from "@/components/ui/MagneticButton";
 import { getWhatsAppUrl, OFFICE_INFO } from "@/lib/data";
 
 if (typeof window !== "undefined") {
@@ -16,7 +18,8 @@ const CREDENTIALS = [
   {
     icon: Scale,
     title: `Inscrição ${OFFICE_INFO.oab}`,
-    description: "Atuação regular pela Ordem dos Advogados do Brasil — Seção Paraná.",
+    description:
+      "Atuação regular pela Ordem dos Advogados do Brasil — Seção Paraná.",
   },
   {
     icon: Award,
@@ -42,18 +45,22 @@ export function AboutLawyerSection() {
       ).matches;
       if (prefersReduced) return;
 
-      gsap.from(".about-reveal", {
-        y: 28,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.12,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 78%",
-          once: true,
-        },
-      });
+      gsap.fromTo(
+        ".about-reveal",
+        { y: 28, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.78,
+          stagger: 0.1,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 80%",
+            toggleActions: "play reverse play reverse",
+          },
+        }
+      );
     },
     { scope: sectionRef }
   );
@@ -66,23 +73,22 @@ export function AboutLawyerSection() {
     >
       <GeometricLines variant="about" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
-          {/* Coluna Fotografia Editorial */}
+          {/* Coluna Fotografia Real com Zoom e Moldura Dourada */}
           <div className="about-reveal lg:col-span-5">
-            <div className="relative max-w-md mx-auto lg:mx-0">
-              {/* Moldura em Fio Dourado Deslocada */}
+            <div className="relative max-w-md mx-auto lg:mx-0 group">
               <div
                 aria-hidden="true"
-                className="hidden sm:block absolute -inset-3 translate-x-3 translate-y-3 rounded-2xl border border-[#9E825C]/45 dark:border-[#C8AE88]/40 pointer-events-none"
+                className="hidden sm:block absolute -inset-3 translate-x-3 translate-y-3 rounded-2xl border border-[#9E825C]/45 dark:border-[#C8AE88]/40 group-hover:translate-x-4 group-hover:translate-y-4 transition-transform duration-500 pointer-events-none"
               />
-              <div className="relative rounded-2xl overflow-hidden bg-[#420D21] shadow-2xl border border-[#9E825C]/25 dark:border-[#C8AE88]/25 aspect-[3/4]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+              <div className="relative rounded-2xl overflow-hidden bg-[#420D21] shadow-2xl border border-[#9E825C]/30 dark:border-[#C8AE88]/25 aspect-[3/4]">
+                <Image
                   src="/Foto_perfil_otimizada.jpg"
-                  alt="Dra. Ariane Cristina Bones Savi — Advogada OAB/PR 112.323"
-                  className="w-full h-full object-cover object-top"
-                  loading="lazy"
+                  alt={`Dra. ${OFFICE_INFO.lawyerFullName} — ${OFFICE_INFO.oab}`}
+                  fill
+                  className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
+                  sizes="(max-width: 1024px) 100vw, 450px"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#2B0815] via-[#2B0815]/75 to-transparent px-6 pt-12 pb-5">
                   <p className="text-[11px] uppercase tracking-[0.2em] text-[#C8AE88] font-medium">
@@ -96,7 +102,7 @@ export function AboutLawyerSection() {
             </div>
           </div>
 
-          {/* Coluna Biografia e Credenciais */}
+          {/* Coluna Biografia */}
           <div className="lg:col-span-7 space-y-6">
             <div className="about-reveal pl-5 border-l border-[#9E825C] dark:border-[#C8AE88]">
               <span className="text-xs uppercase tracking-[0.22em] text-[#9E825C] dark:text-[#C8AE88] font-semibold">
@@ -125,10 +131,9 @@ export function AboutLawyerSection() {
                   Direito do Trabalho
                 </strong>
                 , dedica-se também às demandas de Direito das Famílias e
-                Sucessões, Direito Cível, Consumidor e Bancário — mantendo como
-                propósito traduzir informações jurídicas essenciais em uma
-                linguagem acessível, para que cada cliente compreenda seus
-                direitos antes de tomar decisões importantes.
+                Sucessões, Direito Cível, Consumidor e Bancário — mantendo o
+                propósito de traduzir direitos muitas vezes desconhecidos em
+                orientações claras e seguras.
               </p>
             </div>
 
@@ -138,7 +143,7 @@ export function AboutLawyerSection() {
                 return (
                   <div
                     key={item.title}
-                    className="p-4 rounded-xl bg-[#EFE9DF]/70 dark:bg-[#4A1226]/65 border border-[#9E825C]/25 dark:border-[#C8AE88]/20"
+                    className="p-4 rounded-xl bg-[#EFE9DF]/75 dark:bg-[#4A1226]/65 border border-[#9E825C]/25 dark:border-[#C8AE88]/20 hover-lift hover:border-[#9E825C] dark:hover:border-[#C8AE88]"
                   >
                     <Icon className="w-5 h-5 text-[#9E825C] dark:text-[#C8AE88] mb-2.5" />
                     <h3 className="text-sm font-semibold text-[#420D21] dark:text-[#F4EFE6] leading-snug mb-1">
@@ -153,26 +158,30 @@ export function AboutLawyerSection() {
             </div>
 
             <div className="about-reveal pt-2 flex flex-wrap items-center gap-4">
-              <a
-                href={getWhatsAppUrl(
-                  "Olá! Gostaria de solicitar atendimento jurídico no escritório."
-                )}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#420D21] hover:bg-[#5B1530] dark:bg-[#C8AE88] dark:hover:bg-[#dbc49f] text-[#F4EFE6] dark:text-[#2B0815] text-sm font-semibold shadow-sm transition-colors duration-300"
-              >
-                <span>Solicitar Atendimento</span>
-                <ArrowUpRight className="w-4 h-4" />
-              </a>
+              <MagneticButton strength={0.22}>
+                <a
+                  href={getWhatsAppUrl(
+                    "Olá! Gostaria de solicitar atendimento jurídico no escritório."
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-pill px-6 py-3 bg-[#420D21] hover:bg-[#5B1530] dark:bg-[#C8AE88] dark:hover:bg-[#dbc49f] text-[#F4EFE6] dark:text-[#2B0815] text-sm font-semibold shadow-sm hover-lift gap-2 cursor-pointer"
+                >
+                  <span>Solicitar Atendimento</span>
+                  <ArrowUpRight className="w-4 h-4" />
+                </a>
+              </MagneticButton>
 
-              <a
-                href={OFFICE_INFO.instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-[#9E825C]/50 dark:border-[#C8AE88]/45 text-[#420D21] dark:text-[#F4EFE6] hover:bg-[#EFE9DF] dark:hover:bg-[#4A1226] text-sm font-medium transition-colors duration-300"
-              >
-                <span>Conteúdo no Instagram {OFFICE_INFO.instagramHandle}</span>
-              </a>
+              <MagneticButton strength={0.18}>
+                <a
+                  href={OFFICE_INFO.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-pill px-5 py-3 border border-[#9E825C]/50 dark:border-[#C8AE88]/45 text-[#420D21] dark:text-[#F4EFE6] hover:bg-[#EFE9DF] dark:hover:bg-[#4A1226] text-sm font-medium hover-lift cursor-pointer"
+                >
+                  <span>Conteúdo no Instagram {OFFICE_INFO.instagramHandle}</span>
+                </a>
+              </MagneticButton>
             </div>
           </div>
         </div>
