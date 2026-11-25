@@ -22,6 +22,9 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(OFFICE_INFO.siteUrl),
+  alternates: {
+    canonical: "/",
+  },
   title: {
     default: `${OFFICE_INFO.fullTitle} | Curitiba - PR`,
     template: `%s | ${OFFICE_INFO.fullTitle}`,
@@ -57,10 +60,12 @@ export const metadata: Metadata = {
       "Atendimento presencial em Curitiba (Capão Raso) e online em todo o Brasil. Direito do Trabalho, Família e Sucessões, Consumidor, Cível e Bancário.",
     images: [
       {
-        url: "/og_image.jpg",
+        url: `${OFFICE_INFO.siteUrl}/og_image.jpg`,
+        secureUrl: `${OFFICE_INFO.siteUrl}/og_image.jpg`,
         width: 1200,
         height: 630,
-        alt: OFFICE_INFO.fullTitle,
+        type: "image/jpeg",
+        alt: `${OFFICE_INFO.fullTitle} — ${OFFICE_INFO.oab}`,
       },
     ],
   },
@@ -68,7 +73,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${OFFICE_INFO.fullTitle} | Curitiba - PR`,
     description: OFFICE_INFO.summaryDescription,
-    images: ["/og_image.jpg"],
+    images: [`${OFFICE_INFO.siteUrl}/og_image.jpg`],
   },
 };
 

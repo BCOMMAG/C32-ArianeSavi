@@ -30,7 +30,7 @@ export const OFFICE_INFO = {
     "https://www.google.com/maps/search/?api=1&query=Av.+Winston+Churchill+1824+Capao+Raso+Curitiba+PR+81130-000",
   mapsEmbedUrl:
     "https://www.google.com/maps?q=Av.%20Winston%20Churchill,%201824%20-%20Cap%C3%A3o%20Raso,%20Curitiba%20-%20PR,%2081130-000&output=embed",
-  siteUrl: "https://arianesavi.com.br",
+  siteUrl: "https://arianesavi.pages.dev",
 };
 
 export function getWhatsAppUrl(message?: string): string {
