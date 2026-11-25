@@ -30,16 +30,17 @@ export function EducationalSection() {
 
       gsap.fromTo(
         ".edu-card",
-        { y: 28, opacity: 0 },
+        { y: 46, scale: 0.96, opacity: 0 },
         {
           y: 0,
+          scale: 1,
           opacity: 1,
-          duration: 0.75,
-          stagger: 0.1,
-          ease: "power2.out",
+          duration: 0.85,
+          stagger: 0.12,
+          ease: "power3.out",
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top 80%",
+            start: "top 82%",
             toggleActions: "play reverse play reverse",
           },
         }

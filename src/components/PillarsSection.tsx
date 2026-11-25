@@ -47,13 +47,14 @@ export function PillarsSection() {
         if (items.length > 0) {
           gsap.fromTo(
             items,
-            { y: 30, opacity: 0 },
+            { y: 46, scale: 0.96, opacity: 0 },
             {
               y: 0,
+              scale: 1,
               opacity: 1,
-              duration: 0.75,
-              stagger: 0.1,
-              ease: "power2.out",
+              duration: 0.85,
+              stagger: 0.12,
+              ease: "power3.out",
               scrollTrigger: {
                 trigger: gridRef.current,
                 start: "top 86%",

@@ -37,6 +37,7 @@ const CREDENTIALS = [
 
 export function AboutLawyerSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  const portraitRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
@@ -45,15 +46,32 @@ export function AboutLawyerSection() {
       ).matches;
       if (prefersReduced) return;
 
+      if (portraitRef.current) {
+        gsap.fromTo(
+          portraitRef.current,
+          { y: 24 },
+          {
+            y: -24,
+            ease: "none",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true,
+            },
+          }
+        );
+      }
+
       gsap.fromTo(
         ".about-reveal",
-        { y: 28, opacity: 0 },
+        { y: 42, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          duration: 0.78,
-          stagger: 0.1,
-          ease: "power2.out",
+          duration: 0.85,
+          stagger: 0.12,
+          ease: "power3.out",
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "top 80%",
@@ -75,9 +93,9 @@ export function AboutLawyerSection() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
-          {/* Coluna Fotografia Real com Zoom e Moldura Dourada */}
+          {/* Coluna Fotografia Real com Parallax no Scroll e Moldura Dourada */}
           <div className="about-reveal lg:col-span-5">
-            <div className="relative max-w-md mx-auto lg:mx-0 group">
+            <div ref={portraitRef} className="relative max-w-md mx-auto lg:mx-0 group will-change-transform">
               <div
                 aria-hidden="true"
                 className="hidden sm:block absolute -inset-3 translate-x-3 translate-y-3 rounded-2xl border border-[#9E825C]/45 dark:border-[#C8AE88]/40 group-hover:translate-x-4 group-hover:translate-y-4 transition-transform duration-500 pointer-events-none"

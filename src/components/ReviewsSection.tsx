@@ -13,26 +13,27 @@ import {
   Pause,
   Play,
 } from "lucide-react";
-import { GOOGLE_REVIEWS } from "@/data/reviews";
+import { GOOGLE_REVIEWS, GoogleReview } from "@/data/reviews";
 import { GeometricLines } from "@/components/ui/GeometricLines";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
 }
 
-const LOOP_REVIEWS = [...GOOGLE_REVIEWS, ...GOOGLE_REVIEWS];
-
 export function ReviewsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const tweenRef = useRef<gsap.core.Tween | null>(null);
 
-  const [isPaused, setIsPaused] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
+  const [isPausedByUser, setIsPausedByUser] = useState(false);
 
-  // Movimento contínuo infinito estilo marquee suave (requestAnimationFrame)
+  // Motor Marquee GPU contínuo via GSAP translateX(-50%)
   useEffect(() => {
-    const container = trackRef.current;
-    if (!container) return;
+    const track = trackRef.current;
+    if (!track) return;
+
+    gsap.set(track, { xPercent: 0 });
+
     if (
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -40,30 +41,44 @@ export function ReviewsSection() {
       return;
     }
 
-    let rafId: number;
-    let accumulator = 0;
-    const speedPerFrame = 0.42;
+    const tween = gsap.to(track, {
+      xPercent: -50,
+      duration: 32,
+      ease: "none",
+      repeat: -1,
+    });
 
-    const tick = () => {
-      if (!isPaused && !isHovering && container) {
-        accumulator += speedPerFrame;
-        if (accumulator >= 1) {
-          const step = Math.floor(accumulator);
-          accumulator -= step;
-          container.scrollLeft += step;
+    tweenRef.current = tween;
 
-          const halfWidth = container.scrollWidth / 2;
-          if (halfWidth > 0 && container.scrollLeft >= halfWidth) {
-            container.scrollLeft -= halfWidth;
-          }
-        }
-      }
-      rafId = requestAnimationFrame(tick);
+    return () => {
+      tween.kill();
+      tweenRef.current = null;
     };
+  }, []);
 
-    rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
-  }, [isPaused, isHovering]);
+  useEffect(() => {
+    const tween = tweenRef.current;
+    if (!tween) return;
+    if (isPausedByUser) {
+      gsap.to(tween, { timeScale: 0, duration: 0.35, ease: "power2.out" });
+    } else {
+      tween.play();
+      gsap.to(tween, { timeScale: 1, duration: 0.45, ease: "power2.out" });
+    }
+  }, [isPausedByUser]);
+
+  const handleMouseEnter = () => {
+    if (tweenRef.current && !isPausedByUser) {
+      gsap.to(tweenRef.current, { timeScale: 0, duration: 0.35, ease: "power2.out" });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (tweenRef.current && !isPausedByUser) {
+      tweenRef.current.play();
+      gsap.to(tweenRef.current, { timeScale: 1, duration: 0.45, ease: "power2.out" });
+    }
+  };
 
   useGSAP(
     () => {
@@ -74,11 +89,11 @@ export function ReviewsSection() {
 
       gsap.fromTo(
         ".reviews-header",
-        { y: 24, opacity: 0 },
+        { y: 36, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          duration: 0.75,
+          duration: 0.8,
           ease: "power2.out",
           scrollTrigger: {
             trigger: sectionRef.current,
@@ -91,16 +106,51 @@ export function ReviewsSection() {
     { scope: sectionRef }
   );
 
-  const scrollByCard = (dir: number) => {
-    const el = trackRef.current;
-    if (!el) return;
-    setIsPaused(true);
-    gsap.to(el, {
-      scrollLeft: Math.max(0, el.scrollLeft + dir * 355),
+  const stepReview = (dir: number) => {
+    const tween = tweenRef.current;
+    if (!tween) return;
+    const step = 1 / GOOGLE_REVIEWS.length;
+    const target = (tween.progress() + dir * step + 1) % 1;
+    gsap.to(tween, {
+      progress: target,
       duration: 0.55,
       ease: "power2.out",
     });
   };
+
+  const renderReviewCard = (review: GoogleReview, keyPrefix: string) => (
+    <article
+      key={keyPrefix}
+      className="w-[300px] sm:w-[360px] shrink-0 p-6 sm:p-7 rounded-2xl bg-[#EFE9DF]/85 dark:bg-[#380B1C] border border-[#9E825C]/25 dark:border-[#C8AE88]/20 hover:border-[#9E825C] dark:hover:border-[#C8AE88] hover:-translate-y-1.5 transition-all duration-350 flex flex-col justify-between gap-5 shadow-xs hover:shadow-lg"
+    >
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-0.5">
+            {[...Array(review.rating)].map((_, i) => (
+              <Star
+                key={i}
+                className="w-3.5 h-3.5 fill-[#C8AE88] text-[#C8AE88]"
+              />
+            ))}
+          </div>
+          <Quote className="w-5 h-5 text-[#9E825C]/50 dark:text-[#C8AE88]/40" />
+        </div>
+
+        <p className="text-sm leading-relaxed text-[#4A373E] dark:text-[#D8C8CE] italic">
+          &ldquo;{review.text}&rdquo;
+        </p>
+      </div>
+
+      <div className="pt-4 border-t border-[#9E825C]/20 dark:border-[#C8AE88]/15 flex items-center justify-between">
+        <span className="text-sm font-semibold text-[#420D21] dark:text-[#F4EFE6]">
+          {review.author}
+        </span>
+        <span className="text-[11px] uppercase tracking-wider text-[#9E825C] dark:text-[#C8AE88] font-medium">
+          Avaliação Google
+        </span>
+      </div>
+    </article>
+  );
 
   return (
     <section
@@ -148,11 +198,11 @@ export function ReviewsSection() {
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
-                onClick={() => setIsPaused((p) => !p)}
-                aria-label={isPaused ? "Retomar rolagem" : "Pausar rolagem"}
+                onClick={() => setIsPausedByUser((p) => !p)}
+                aria-label={isPausedByUser ? "Retomar rolagem" : "Pausar rolagem"}
                 className="p-2 rounded-full bg-[#F9F6F0] dark:bg-[#2B0815] border border-[#9E825C]/30 dark:border-[#C8AE88]/25 text-[#420D21] dark:text-[#C8AE88] hover:border-[#9E825C] cursor-pointer"
               >
-                {isPaused ? (
+                {isPausedByUser ? (
                   <Play className="w-3.5 h-3.5" />
                 ) : (
                   <Pause className="w-3.5 h-3.5" />
@@ -160,7 +210,7 @@ export function ReviewsSection() {
               </button>
               <button
                 type="button"
-                onClick={() => scrollByCard(-1)}
+                onClick={() => stepReview(-1)}
                 aria-label="Avaliação anterior"
                 className="p-2 rounded-full bg-[#F9F6F0] dark:bg-[#2B0815] border border-[#9E825C]/30 dark:border-[#C8AE88]/25 text-[#420D21] dark:text-[#F4EFE6] hover:border-[#9E825C] cursor-pointer"
               >
@@ -168,7 +218,7 @@ export function ReviewsSection() {
               </button>
               <button
                 type="button"
-                onClick={() => scrollByCard(1)}
+                onClick={() => stepReview(1)}
                 aria-label="Próxima avaliação"
                 className="p-2 rounded-full bg-[#F9F6F0] dark:bg-[#2B0815] border border-[#9E825C]/30 dark:border-[#C8AE88]/25 text-[#420D21] dark:text-[#F4EFE6] hover:border-[#9E825C] cursor-pointer"
               >
@@ -177,48 +227,28 @@ export function ReviewsSection() {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Carrossel em Movimento Contínuo */}
-        <div
-          ref={trackRef}
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
-          onTouchStart={() => setIsPaused(true)}
-          className="flex items-stretch gap-5 overflow-x-auto no-scrollbar py-2"
-        >
-          {LOOP_REVIEWS.map((review, idx) => (
-            <article
-              key={`${review.id}-${idx}`}
-              className="w-[300px] sm:w-[360px] shrink-0 p-6 sm:p-7 rounded-2xl bg-[#EFE9DF]/75 dark:bg-[#380B1C] border border-[#9E825C]/25 dark:border-[#C8AE88]/20 hover:border-[#9E825C] dark:hover:border-[#C8AE88] hover:-translate-y-1 transition-all duration-350 flex flex-col justify-between gap-5 shadow-xs hover:shadow-md"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-0.5">
-                    {[...Array(review.rating)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-3.5 h-3.5 fill-[#C8AE88] text-[#C8AE88]"
-                      />
-                    ))}
-                  </div>
-                  <Quote className="w-5 h-5 text-[#9E825C]/50 dark:text-[#C8AE88]/40" />
-                </div>
+      {/* Marquee GPU Full-Bleed */}
+      <div
+        className="relative z-10 w-full overflow-hidden py-3"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div className="hidden md:block pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#F9F6F0] dark:from-[#2B0815] to-transparent z-20" />
+        <div className="hidden md:block pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#F9F6F0] dark:from-[#2B0815] to-transparent z-20" />
 
-                <p className="text-sm leading-relaxed text-[#4A373E] dark:text-[#D8C8CE] italic">
-                  &ldquo;{review.text}&rdquo;
-                </p>
-              </div>
-
-              <div className="pt-4 border-t border-[#9E825C]/20 dark:border-[#C8AE88]/15 flex items-center justify-between">
-                <span className="text-sm font-semibold text-[#420D21] dark:text-[#F4EFE6]">
-                  {review.author}
-                </span>
-                <span className="text-[11px] uppercase tracking-wider text-[#9E825C] dark:text-[#C8AE88] font-medium">
-                  Avaliação Google
-                </span>
-              </div>
-            </article>
-          ))}
+        <div ref={trackRef} className="flex w-max will-change-transform">
+          <div className="flex items-stretch gap-5 pr-5">
+            {GOOGLE_REVIEWS.map((rev, idx) =>
+              renderReviewCard(rev, `rev-g1-${rev.id}-${idx}`)
+            )}
+          </div>
+          <div className="flex items-stretch gap-5 pr-5" aria-hidden="true">
+            {GOOGLE_REVIEWS.map((rev, idx) =>
+              renderReviewCard(rev, `rev-g2-${rev.id}-${idx}`)
+            )}
+          </div>
         </div>
       </div>
     </section>

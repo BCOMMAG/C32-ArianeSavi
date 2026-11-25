@@ -26,11 +26,11 @@ import { gsap } from "gsap";
 
 export function PracticeAreasSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const carouselRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const tweenRef = useRef<gsap.core.Tween | null>(null);
 
   const [selectedCategory, setSelectedCategory] = useState<string>("todos");
   const [isPausedByUser, setIsPausedByUser] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
   const [selectedCard, setSelectedCard] = useState<LegalDemandCard | null>(null);
 
   const visibleCards = useMemo(() => {
@@ -38,35 +38,37 @@ export function PracticeAreasSection() {
     return LEGAL_DEMANDS.filter((item) => item.categoryId === selectedCategory);
   }, [selectedCategory]);
 
-  // Lista duplicada para loop horizontal contínuo suave
-  const loopCards = useMemo(
-    () =>
-      visibleCards.length >= 3
-        ? [...visibleCards, ...visibleCards]
-        : visibleCards,
-    [visibleCards]
-  );
+  // Para filtros com poucos itens, multiplica para garantir preenchimento além de 100vw antes de duplicar 50/50
+  const baseGroup = useMemo(() => {
+    if (visibleCards.length >= 4) return visibleCards;
+    return [...visibleCards, ...visibleCards, ...visibleCards];
+  }, [visibleCards]);
 
-  // Ouvir eventos vindos do Hero / Navbar
+  // Ouvir seleções externas vindas da Navbar ou atalhos do Hero
   useEffect(() => {
     const onSelectArea = (e: Event) => {
       const custom = e as CustomEvent<string>;
       if (custom.detail) {
         setSelectedCategory(custom.detail);
         setIsPausedByUser(false);
-        if (carouselRef.current) {
-          carouselRef.current.scrollLeft = 0;
-        }
       }
     };
     window.addEventListener("selectPracticeArea", onSelectArea);
     return () => window.removeEventListener("selectPracticeArea", onSelectArea);
   }, []);
 
-  // Esteira contínua fluida via requestAnimationFrame (~28px/s a 60fps)
+  // Motor Marquee GPU via GSAP translateX(-50%) — 100% fluido em qualquer tela/DPI
   useEffect(() => {
-    const container = carouselRef.current;
-    if (!container || loopCards.length <= 2) return;
+    const track = trackRef.current;
+    if (!track) return;
+
+    if (tweenRef.current) {
+      tweenRef.current.kill();
+      tweenRef.current = null;
+    }
+
+    gsap.set(track, { xPercent: 0 });
+
     if (
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -74,32 +76,64 @@ export function PracticeAreasSection() {
       return;
     }
 
-    let rafId: number;
-    let accumulator = 0;
-    const speedPerFrame = 0.48;
+    const durationSec = Math.max(20, baseGroup.length * 4.4);
+    const tween = gsap.to(track, {
+      xPercent: -50,
+      duration: durationSec,
+      ease: "none",
+      repeat: -1,
+    });
 
-    const tick = () => {
-      if (!isPausedByUser && !isHovering && container) {
-        accumulator += speedPerFrame;
-        if (accumulator >= 1) {
-          const step = Math.floor(accumulator);
-          accumulator -= step;
-          container.scrollLeft += step;
+    if (isPausedByUser) {
+      tween.pause();
+    }
 
-          const halfWidth = container.scrollWidth / 2;
-          if (halfWidth > 0 && container.scrollLeft >= halfWidth) {
-            container.scrollLeft -= halfWidth;
-          }
-        }
-      }
-      rafId = requestAnimationFrame(tick);
+    tweenRef.current = tween;
+
+    return () => {
+      tween.kill();
+      tweenRef.current = null;
     };
+  }, [baseGroup, isPausedByUser]);
 
-    rafId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafId);
-  }, [isPausedByUser, isHovering, loopCards]);
+  // Sincronizar pause/play sem recriar o tween
+  useEffect(() => {
+    const tween = tweenRef.current;
+    if (!tween) return;
+    if (isPausedByUser) {
+      gsap.to(tween, { timeScale: 0, duration: 0.35, ease: "power2.out" });
+    } else {
+      tween.play();
+      gsap.to(tween, { timeScale: 1, duration: 0.45, ease: "power2.out" });
+    }
+  }, [isPausedByUser]);
 
-  // Pausa ao entrar no modal + teclado Esc
+  const handleMouseEnter = () => {
+    if (tweenRef.current && !isPausedByUser) {
+      gsap.to(tweenRef.current, { timeScale: 0, duration: 0.35, ease: "power2.out" });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (tweenRef.current && !isPausedByUser) {
+      tweenRef.current.play();
+      gsap.to(tweenRef.current, { timeScale: 1, duration: 0.45, ease: "power2.out" });
+    }
+  };
+
+  const handleArrowStep = (dir: number) => {
+    const tween = tweenRef.current;
+    if (!tween) return;
+    const stepProgress = 1 / Math.max(baseGroup.length, 4);
+    const current = tween.progress();
+    const target = (current + dir * stepProgress + 1) % 1;
+    gsap.to(tween, {
+      progress: target,
+      duration: 0.55,
+      ease: "power2.out",
+    });
+  };
+
   const closeModal = useCallback(() => setSelectedCard(null), []);
   useEffect(() => {
     if (!selectedCard) return;
@@ -110,17 +144,73 @@ export function PracticeAreasSection() {
     return () => window.removeEventListener("keydown", onKey);
   }, [selectedCard, closeModal]);
 
-  const handleArrowStep = (dir: number) => {
-    const container = carouselRef.current;
-    if (!container) return;
-    setIsPausedByUser(true);
-    const target = Math.max(0, container.scrollLeft + dir * 350);
-    gsap.to(container, {
-      scrollLeft: target,
-      duration: 0.6,
-      ease: "power2.out",
-    });
-  };
+  const renderCard = (card: LegalDemandCard, keyPrefix: string) => (
+    <div
+      key={keyPrefix}
+      onClick={() => setSelectedCard(card)}
+      className="w-[285px] sm:w-[330px] shrink-0 rounded-2xl overflow-hidden flex flex-col justify-between bg-[#F9F6F0] dark:bg-[#380B1C] border border-[#9E825C]/25 dark:border-[#C8AE88]/20 hover:border-[#9E825C] dark:hover:border-[#C8AE88] shadow-xs hover:shadow-[0_14px_34px_rgba(66,13,33,0.16)] hover:-translate-y-1.5 transition-all duration-400 cursor-pointer group"
+    >
+      <div>
+        <div className="relative w-full aspect-[16/10] bg-[#EFE9DF] dark:bg-[#2B0815] overflow-hidden">
+          <Image
+            src={card.image}
+            alt={card.title}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="340px"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#2B0815]/60 via-transparent to-transparent pointer-events-none" />
+          <span className="absolute top-3 left-3 text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F9F6F0]/95 dark:bg-[#2B0815]/90 text-[#420D21] dark:text-[#C8AE88] shadow-xs">
+            {card.badge}
+          </span>
+          <span className="absolute bottom-2.5 left-3 text-[10px] font-medium uppercase tracking-widest text-[#F4EFE6]/95">
+            {card.categoryName}
+          </span>
+        </div>
+
+        <div className="p-5 pb-3">
+          <h3 className="font-serif text-xl font-semibold text-[#420D21] dark:text-[#F4EFE6] mb-1.5 leading-snug group-hover:text-[#9E825C] dark:group-hover:text-[#C8AE88] transition-colors">
+            {card.title}
+          </h3>
+          <p className="text-xs leading-relaxed text-[#4A373E] dark:text-[#D8C8CE] line-clamp-3">
+            {card.summary}
+          </p>
+        </div>
+      </div>
+
+      <div className="px-5 pb-4 pt-3 border-t border-[#9E825C]/15 dark:border-[#C8AE88]/15 space-y-2.5 mt-auto">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setSelectedCard(card);
+          }}
+          className="w-full py-2 px-3 rounded-xl bg-[#EFE9DF]/85 dark:bg-[#2B0815] border border-[#9E825C]/25 dark:border-[#C8AE88]/25 hover:border-[#9E825C] dark:hover:border-[#C8AE88] text-[11px] font-semibold text-[#420D21] dark:text-[#F4EFE6] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+        >
+          <Info className="w-3.5 h-3.5 text-[#9E825C] dark:text-[#C8AE88]" />
+          <span>Ver direitos e base legal</span>
+        </button>
+
+        <div className="flex items-center justify-between text-[11px] font-semibold">
+          <a
+            href={getWhatsAppUrl(card.whatsappMessage)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-1.5 text-[#420D21] dark:text-[#C8AE88] hover:underline"
+          >
+            <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366]" />
+            <span>Conversar com Advogado</span>
+          </a>
+
+          <span className="inline-flex items-center gap-1 text-[#9E825C] dark:text-[#D8C8CE]">
+            <span>Expandir</span>
+            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+          </span>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <section
@@ -143,12 +233,12 @@ export function PracticeAreasSection() {
           </div>
 
           <p className="text-xs sm:text-sm text-[#4A373E] dark:text-[#D8C8CE] max-w-md leading-relaxed">
-            Filtre por área ou passe o mouse sobre qualquer demanda para pausar
-            e explorar os fundamentos legais e detalhes do atendimento.
+            Passe o mouse sobre qualquer demanda para desacelerar e ler com
+            calma, ou filtre pela área de seu interesse abaixo.
           </p>
         </div>
 
-        {/* Menu Superior de Filtros (Pílulas Interativas) */}
+        {/* Menu Superior de Filtros */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1.5 mb-5">
           {PRACTICE_CATEGORIES.map((cat) => {
             const isActive = selectedCategory === cat.id;
@@ -159,9 +249,6 @@ export function PracticeAreasSection() {
                 onClick={() => {
                   setSelectedCategory(cat.id);
                   setIsPausedByUser(false);
-                  if (carouselRef.current) {
-                    carouselRef.current.scrollLeft = 0;
-                  }
                 }}
                 className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition-all duration-300 cursor-pointer ${
                   isActive
@@ -175,7 +262,7 @@ export function PracticeAreasSection() {
           })}
         </div>
 
-        {/* Barra de Status e Controles da Esteira */}
+        {/* Controles da Vitrine */}
         <div className="flex items-center justify-between mb-4 px-1">
           <button
             type="button"
@@ -190,7 +277,7 @@ export function PracticeAreasSection() {
             ) : (
               <>
                 <Pause className="w-3 h-3" />
-                <span>Vitrine em movimento contínuo ({visibleCards.length} frentes)</span>
+                <span>Vitrine em deslize automático contínuo</span>
               </>
             )}
           </button>
@@ -214,93 +301,33 @@ export function PracticeAreasSection() {
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Esteira Horizontal Viva com Imagens em Todos os Cards */}
-        <div
-          ref={carouselRef}
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
-          onTouchStart={() => setIsPausedByUser(true)}
-          className="flex items-stretch gap-5 overflow-x-auto no-scrollbar py-2 mb-6"
-        >
-          {loopCards.map((card, loopIdx) => (
-            <div
-              key={`${card.id}-${loopIdx}`}
-              onClick={() => {
-                setIsPausedByUser(true);
-                setSelectedCard(card);
-              }}
-              className="w-[290px] sm:w-[335px] shrink-0 rounded-2xl overflow-hidden flex flex-col justify-between bg-[#F9F6F0] dark:bg-[#380B1C] border border-[#9E825C]/25 dark:border-[#C8AE88]/20 hover:border-[#9E825C] dark:hover:border-[#C8AE88] shadow-xs hover:shadow-[0_14px_34px_rgba(66,13,33,0.14)] hover:-translate-y-1 transition-all duration-400 cursor-pointer group"
-            >
-              <div>
-                {/* Imagem Visual + Badges */}
-                <div className="relative w-full aspect-[16/10] bg-[#EFE9DF] dark:bg-[#2B0815] overflow-hidden">
-                  <Image
-                    src={card.image}
-                    alt={card.title}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes="340px"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#2B0815]/60 via-transparent to-transparent pointer-events-none" />
-                  <span className="absolute top-3 left-3 text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F9F6F0]/95 dark:bg-[#2B0815]/90 text-[#420D21] dark:text-[#C8AE88] shadow-xs">
-                    {card.badge}
-                  </span>
-                  <span className="absolute bottom-2.5 left-3 text-[10px] font-medium uppercase tracking-widest text-[#F4EFE6]/95">
-                    {card.categoryName}
-                  </span>
-                </div>
+      {/* Viewport Full-Bleed do Marquee GPU */}
+      <div
+        className="relative z-10 w-full overflow-hidden py-3"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* Máscaras laterais sutis de entrada/saída */}
+        <div className="hidden md:block pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#EFE9DF] dark:from-[#240611] to-transparent z-20" />
+        <div className="hidden md:block pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#EFE9DF] dark:from-[#240611] to-transparent z-20" />
 
-                {/* Conteúdo Textual */}
-                <div className="p-5 pb-3">
-                  <h3 className="font-serif text-xl font-semibold text-[#420D21] dark:text-[#F4EFE6] mb-1.5 leading-snug group-hover:text-[#9E825C] dark:group-hover:text-[#C8AE88] transition-colors">
-                    {card.title}
-                  </h3>
-                  <p className="text-xs leading-relaxed text-[#4A373E] dark:text-[#D8C8CE] line-clamp-3">
-                    {card.summary}
-                  </p>
-                </div>
-              </div>
-
-              {/* Ações do Card */}
-              <div className="px-5 pb-4 pt-3 border-t border-[#9E825C]/15 dark:border-[#C8AE88]/15 space-y-2.5 mt-auto">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsPausedByUser(true);
-                    setSelectedCard(card);
-                  }}
-                  className="w-full py-2 px-3 rounded-xl bg-[#EFE9DF]/85 dark:bg-[#2B0815] border border-[#9E825C]/25 dark:border-[#C8AE88]/25 hover:border-[#9E825C] dark:hover:border-[#C8AE88] text-[11px] font-semibold text-[#420D21] dark:text-[#F4EFE6] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                >
-                  <Info className="w-3.5 h-3.5 text-[#9E825C] dark:text-[#C8AE88]" />
-                  <span>Ver direitos e base legal</span>
-                </button>
-
-                <div className="flex items-center justify-between text-[11px] font-semibold">
-                  <a
-                    href={getWhatsAppUrl(card.whatsappMessage)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-1.5 text-[#420D21] dark:text-[#C8AE88] hover:underline"
-                  >
-                    <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366]" />
-                    <span>Conversar com Advogado</span>
-                  </a>
-
-                  <span className="inline-flex items-center gap-1 text-[#9E825C] dark:text-[#D8C8CE]">
-                    <span>Expandir</span>
-                    <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div ref={trackRef} className="flex w-max will-change-transform">
+          <div className="flex items-stretch gap-5 pr-5">
+            {baseGroup.map((card, i) =>
+              renderCard(card, `g1-${card.id}-${i}`)
+            )}
+          </div>
+          <div className="flex items-stretch gap-5 pr-5" aria-hidden="true">
+            {baseGroup.map((card, i) =>
+              renderCard(card, `g2-${card.id}-${i}`)
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Modal Quick View do Card Jurídico */}
+      {/* Modal Quick View */}
       {selectedCard && (
         <div
           role="dialog"
