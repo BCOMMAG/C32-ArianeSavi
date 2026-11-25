@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import {
   Globe,
@@ -77,19 +78,20 @@ export function LinksClient() {
             <img
               src="/logo_sem_fundo_usarnomodoescuro.png"
               alt={OFFICE_INFO.fullTitle}
-              className="h-20 w-auto object-contain object-left"
+              className="h-18 w-auto object-contain object-left"
             />
           </Link>
         </div>
 
         <div className="relative z-10 my-auto space-y-6">
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-[#C8AE88]/70 shrink-0 shadow-lg">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+            <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-[#C8AE88]/75 shrink-0 shadow-xl">
+              <Image
                 src="/Foto_perfil_otimizada.jpg"
                 alt={`Dra. ${OFFICE_INFO.lawyerFullName}`}
-                className="w-full h-full object-cover object-top"
+                fill
+                className="object-cover object-top"
+                sizes="96px"
               />
             </div>
             <div>
@@ -127,31 +129,41 @@ export function LinksClient() {
         </div>
       </div>
 
-      {/* Coluna Direita (e Tela Única Mobile 100dvh sem rolagem desnecessária) */}
+      {/* Coluna Direita Desktop & Tela Única Mobile */}
       <div className="lg:col-span-7 relative flex flex-col justify-between px-4 py-4 sm:px-8 sm:py-6 lg:px-12 lg:py-8 min-h-[100dvh] lg:min-h-0 overflow-hidden">
         <GeometricLines variant="links" />
 
-        {/* Cabeçalho Compacto Mobile + Toggle */}
-        <div className="relative z-10 flex items-center justify-between gap-3">
-          <Link href="/" className="lg:hidden inline-flex items-center" aria-label="Início">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+        {/* Marca d'água minimalista da logo no plano de fundo (Mobile e sutil no fundo) */}
+        <div
+          aria-hidden="true"
+          className="lg:hidden pointer-events-none select-none absolute inset-0 flex items-center justify-center z-0"
+        >
+          <div className="relative w-[84vw] max-w-[380px] aspect-[16/9] opacity-[0.06] dark:opacity-[0.08]">
+            <Image
               src="/logo_sem_fundo_usarnomodoclaro.png"
-              alt={OFFICE_INFO.fullTitle}
-              className="dark:hidden h-12 w-auto object-contain object-left"
+              alt=""
+              fill
+              className="dark:hidden object-contain"
+              sizes="380px"
             />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="/logo_sem_fundo_usarnomodoescuro.png"
-              alt={OFFICE_INFO.fullTitle}
-              className="hidden dark:block h-12 w-auto object-contain object-left"
+              alt=""
+              fill
+              className="hidden dark:block object-contain"
+              sizes="380px"
             />
-          </Link>
+          </div>
+        </div>
 
+        {/* Barra Superior Discreta: Apenas Controles Flutuantes à Direita no Mobile (Sem parecer Menu) */}
+        <div className="relative z-10 flex items-center justify-between gap-3">
           <div className="hidden lg:flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-[#9E825C] dark:text-[#C8AE88] font-semibold">
             <Scale className="w-3.5 h-3.5" />
             <span>Central Oficial de Atendimento</span>
           </div>
+
+          <div className="lg:hidden" />
 
           <div className="flex items-center gap-2">
             <a
@@ -159,7 +171,7 @@ export function LinksClient() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
-              className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-[#9E825C]/35 dark:border-[#C8AE88]/30 bg-[#EFE9DF]/80 dark:bg-[#4A1226]/70 text-[#420D21] dark:text-[#C8AE88]"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-[#9E825C]/35 dark:border-[#C8AE88]/30 bg-[#EFE9DF]/80 dark:bg-[#4A1226]/70 text-[#420D21] dark:text-[#C8AE88] hover:scale-105 transition-transform"
             >
               <InstagramIcon className="w-4 h-4" />
             </a>
@@ -167,33 +179,33 @@ export function LinksClient() {
           </div>
         </div>
 
-        {/* Cartão Perfil Compacto no Mobile */}
-        <div className="relative z-10 lg:hidden flex items-center gap-3 my-2 px-3.5 py-2.5 rounded-2xl bg-[#EFE9DF]/85 dark:bg-[#380B1C] border border-[#9E825C]/25 dark:border-[#C8AE88]/25">
-          <div className="w-12 h-12 rounded-full overflow-hidden border border-[#C8AE88] shrink-0">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+        {/* Perfil Mobile em Evidência: Foto Grande Centralizada + Nome Abaixo */}
+        <div className="relative z-10 lg:hidden flex flex-col items-center text-center mt-1 mb-3">
+          <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-[#C8AE88] shadow-xl ring-4 ring-[#C8AE88]/15">
+            <Image
               src="/Foto_perfil_otimizada.jpg"
               alt={`Dra. ${OFFICE_INFO.lawyerFullName}`}
-              className="w-full h-full object-cover object-top"
+              fill
+              priority
+              className="object-cover object-top"
+              sizes="112px"
             />
           </div>
-          <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-[0.16em] text-[#9E825C] dark:text-[#C8AE88] font-semibold truncate">
-              {OFFICE_INFO.oab} · Curitiba/PR
-            </p>
-            <p className="font-serif text-base font-semibold text-[#420D21] dark:text-[#F4EFE6] truncate">
-              Dra. Ariane Savi — Direito do Trabalho
-            </p>
-          </div>
+          <h1 className="mt-2.5 font-serif text-2xl sm:text-[1.75rem] font-semibold text-[#420D21] dark:text-[#F4EFE6] leading-tight">
+            Dra. Ariane Savi
+          </h1>
+          <p className="text-xs font-medium text-[#9E825C] dark:text-[#C8AE88] mt-0.5">
+            Advocacia e Assessoria Jurídica
+          </p>
         </div>
 
-        {/* Botões Principais */}
+        {/* Lista de Ações Diretas */}
         <div className="relative z-10 my-auto w-full max-w-xl mx-auto space-y-2.5 sm:space-y-3">
           {LINK_ACTIONS.map((item) => {
             const Icon = item.icon;
             const classes = item.primary
               ? "bg-[#25D366] hover:bg-[#20ba59] text-white border-[#25D366] shadow-md"
-              : "bg-[#EFE9DF]/85 hover:bg-[#420D21] text-[#420D21] hover:text-[#F4EFE6] dark:bg-[#380B1C] dark:hover:bg-[#4A1226] dark:text-[#F4EFE6] border-[#9E825C]/30 dark:border-[#C8AE88]/25";
+              : "bg-[#EFE9DF]/88 hover:bg-[#420D21] text-[#420D21] hover:text-[#F4EFE6] dark:bg-[#380B1C]/90 dark:hover:bg-[#4A1226] dark:text-[#F4EFE6] border-[#9E825C]/30 dark:border-[#C8AE88]/25";
 
             const inner = (
               <div className="flex items-center justify-between gap-3 w-full">
@@ -233,7 +245,7 @@ export function LinksClient() {
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`group block w-full px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl border transition-all duration-250 ${classes}`}
+                  className={`group block w-full px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl border backdrop-blur-[2px] hover:-translate-y-0.5 transition-all duration-250 ${classes}`}
                 >
                   {inner}
                 </a>
@@ -244,7 +256,7 @@ export function LinksClient() {
               <Link
                 key={item.title}
                 href={item.href}
-                className={`group block w-full px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl border transition-all duration-250 ${classes}`}
+                className={`group block w-full px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl border backdrop-blur-[2px] hover:-translate-y-0.5 transition-all duration-250 ${classes}`}
               >
                 {inner}
               </Link>
@@ -252,10 +264,11 @@ export function LinksClient() {
           })}
         </div>
 
-        {/* Rodapé Discreto */}
-        <div className="relative z-10 text-center pt-2 text-[11px] text-[#6B545C] dark:text-[#D8C8CE]/80">
+        {/* Rodapé visível apenas no Desktop para manter o mobile 100% limpo */}
+        <div className="hidden lg:block relative z-10 text-center pt-2 text-[11px] text-[#6B545C] dark:text-[#D8C8CE]/80">
           {OFFICE_INFO.fullTitle} · {OFFICE_INFO.oab} · 5.0 ★ Google Verificado
         </div>
+        <div className="lg:hidden h-1" aria-hidden="true" />
       </div>
     </div>
   );
