@@ -26,11 +26,6 @@ export function ContactSection() {
 
   useGSAP(
     () => {
-      const prefersReduced = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-      if (prefersReduced) return;
-
       gsap.fromTo(
         ".contact-reveal",
         { y: 26, opacity: 0 },

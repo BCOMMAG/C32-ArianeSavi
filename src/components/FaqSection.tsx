@@ -21,11 +21,6 @@ export function FaqSection() {
 
   useGSAP(
     () => {
-      const prefersReduced = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-      if (prefersReduced) return;
-
       gsap.fromTo(
         ".faq-reveal",
         { y: 24, opacity: 0 },

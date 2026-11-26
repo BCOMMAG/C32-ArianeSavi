@@ -41,11 +41,6 @@ export function AboutLawyerSection() {
 
   useGSAP(
     () => {
-      const prefersReduced = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-      if (prefersReduced) return;
-
       if (portraitRef.current) {
         gsap.fromTo(
           portraitRef.current,

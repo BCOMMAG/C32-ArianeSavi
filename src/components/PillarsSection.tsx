@@ -19,11 +19,6 @@ export function PillarsSection() {
 
   useGSAP(
     () => {
-      const prefersReduced = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-      if (prefersReduced) return;
-
       if (headerRef.current) {
         gsap.fromTo(
           headerRef.current,

@@ -22,15 +22,13 @@ import {
   Play,
   Scale,
 } from "lucide-react";
-import { gsap } from "gsap";
 
 export function PracticeAreasSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const tweenRef = useRef<gsap.core.Tween | null>(null);
 
   const [selectedCategory, setSelectedCategory] = useState<string>("todos");
   const [isPausedByUser, setIsPausedByUser] = useState(false);
+  const [manualOffset, setManualOffset] = useState(0);
   const [selectedCard, setSelectedCard] = useState<LegalDemandCard | null>(null);
 
   const visibleCards = useMemo(() => {
@@ -38,7 +36,7 @@ export function PracticeAreasSection() {
     return LEGAL_DEMANDS.filter((item) => item.categoryId === selectedCategory);
   }, [selectedCategory]);
 
-  // Para filtros com poucos itens, multiplica para garantir preenchimento além de 100vw antes de duplicar 50/50
+  // Garante largura superior ao viewport antes de duplicar para o loop perfeito de -50%
   const baseGroup = useMemo(() => {
     if (visibleCards.length >= 4) return visibleCards;
     return [...visibleCards, ...visibleCards, ...visibleCards];
@@ -51,86 +49,20 @@ export function PracticeAreasSection() {
       if (custom.detail) {
         setSelectedCategory(custom.detail);
         setIsPausedByUser(false);
+        setManualOffset(0);
       }
     };
     window.addEventListener("selectPracticeArea", onSelectArea);
     return () => window.removeEventListener("selectPracticeArea", onSelectArea);
   }, []);
 
-  // Motor Marquee GPU via GSAP translateX(-50%) com 100% de fluidez em qualquer tela/DPI
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-
-    if (tweenRef.current) {
-      tweenRef.current.kill();
-      tweenRef.current = null;
-    }
-
-    gsap.set(track, { xPercent: 0 });
-
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      return;
-    }
-
-    const durationSec = Math.max(20, baseGroup.length * 4.4);
-    const tween = gsap.to(track, {
-      xPercent: -50,
-      duration: durationSec,
-      ease: "none",
-      repeat: -1,
-    });
-
-    if (isPausedByUser) {
-      tween.pause();
-    }
-
-    tweenRef.current = tween;
-
-    return () => {
-      tween.kill();
-      tweenRef.current = null;
-    };
-  }, [baseGroup, isPausedByUser]);
-
-  // Sincronizar pause/play sem recriar o tween
-  useEffect(() => {
-    const tween = tweenRef.current;
-    if (!tween) return;
-    if (isPausedByUser) {
-      gsap.to(tween, { timeScale: 0, duration: 0.35, ease: "power2.out" });
-    } else {
-      tween.play();
-      gsap.to(tween, { timeScale: 1, duration: 0.45, ease: "power2.out" });
-    }
-  }, [isPausedByUser]);
-
-  const handleMouseEnter = () => {
-    if (tweenRef.current && !isPausedByUser) {
-      gsap.to(tweenRef.current, { timeScale: 0, duration: 0.35, ease: "power2.out" });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (tweenRef.current && !isPausedByUser) {
-      tweenRef.current.play();
-      gsap.to(tweenRef.current, { timeScale: 1, duration: 0.45, ease: "power2.out" });
-    }
-  };
-
   const handleArrowStep = (dir: number) => {
-    const tween = tweenRef.current;
-    if (!tween) return;
-    const stepProgress = 1 / Math.max(baseGroup.length, 4);
-    const current = tween.progress();
-    const target = (current + dir * stepProgress + 1) % 1;
-    gsap.to(tween, {
-      progress: target,
-      duration: 0.55,
-      ease: "power2.out",
+    setManualOffset((prev) => {
+      const next = prev - dir * 340;
+      const limit = baseGroup.length * 340;
+      if (next < -limit) return 0;
+      if (next > 340) return 0;
+      return next;
     });
   };
 
@@ -148,7 +80,7 @@ export function PracticeAreasSection() {
     <div
       key={keyPrefix}
       onClick={() => setSelectedCard(card)}
-      className="w-[285px] sm:w-[330px] shrink-0 rounded-2xl overflow-hidden flex flex-col justify-between bg-[#F9F6F0] dark:bg-[#380B1C] border border-[#9E825C]/25 dark:border-[#C8AE88]/20 hover:border-[#9E825C] dark:hover:border-[#C8AE88] shadow-xs hover:shadow-[0_14px_34px_rgba(66,13,33,0.16)] hover:-translate-y-1.5 transition-all duration-400 cursor-pointer group"
+      className="w-[280px] sm:w-[330px] shrink-0 rounded-2xl overflow-hidden flex flex-col justify-between bg-[#F9F6F0] dark:bg-[#380B1C] border border-[#9E825C]/25 dark:border-[#C8AE88]/20 hover:border-[#9E825C] dark:hover:border-[#C8AE88] shadow-xs hover:shadow-[0_14px_34px_rgba(66,13,33,0.16)] hover:-translate-y-1.5 transition-all duration-400 cursor-pointer group"
     >
       <div>
         <div className="relative w-full aspect-[16/10] bg-[#EFE9DF] dark:bg-[#2B0815] overflow-hidden">
@@ -233,8 +165,8 @@ export function PracticeAreasSection() {
           </div>
 
           <p className="text-xs sm:text-sm text-[#4A373E] dark:text-[#D8C8CE] max-w-md leading-relaxed">
-            Passe o mouse sobre qualquer demanda para desacelerar e ler com
-            calma, ou filtre pela área de seu interesse abaixo.
+            Filtre pela área de interesse ou toque em qualquer card para pausar
+            a vitrine e explorar os fundamentos legais do seu caso.
           </p>
         </div>
 
@@ -249,6 +181,7 @@ export function PracticeAreasSection() {
                 onClick={() => {
                   setSelectedCategory(cat.id);
                   setIsPausedByUser(false);
+                  setManualOffset(0);
                 }}
                 className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition-all duration-300 cursor-pointer ${
                   isActive
@@ -303,26 +236,33 @@ export function PracticeAreasSection() {
         </div>
       </div>
 
-      {/* Viewport Full-Bleed do Marquee GPU */}
-      <div
-        className="relative z-10 w-full overflow-hidden py-3"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        {/* Máscaras laterais sutis de entrada/saída */}
+      {/* Viewport Full-Bleed do Marquee CSS GPU Contínuo */}
+      <div className="marquee-wrapper relative z-10 w-full overflow-hidden py-3">
         <div className="hidden md:block pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#EFE9DF] dark:from-[#240611] to-transparent z-20" />
         <div className="hidden md:block pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#EFE9DF] dark:from-[#240611] to-transparent z-20" />
 
-        <div ref={trackRef} className="flex w-max will-change-transform">
-          <div className="flex items-stretch gap-5 pr-5">
-            {baseGroup.map((card, i) =>
-              renderCard(card, `g1-${card.id}-${i}`)
-            )}
-          </div>
-          <div className="flex items-stretch gap-5 pr-5" aria-hidden="true">
-            {baseGroup.map((card, i) =>
-              renderCard(card, `g2-${card.id}-${i}`)
-            )}
+        <div
+          className="transition-transform duration-500 ease-out"
+          style={{ transform: `translate3d(${manualOffset}px, 0, 0)` }}
+        >
+          <div
+            key={selectedCategory}
+            className="marquee-track animate-marquee-areas flex w-max will-change-transform"
+            style={{
+              animationPlayState:
+                isPausedByUser || selectedCard ? "paused" : "running",
+            }}
+          >
+            <div className="flex items-stretch gap-5 pr-5">
+              {baseGroup.map((card, i) =>
+                renderCard(card, `g1-${card.id}-${i}`)
+              )}
+            </div>
+            <div className="flex items-stretch gap-5 pr-5" aria-hidden="true">
+              {baseGroup.map((card, i) =>
+                renderCard(card, `g2-${card.id}-${i}`)
+              )}
+            </div>
           </div>
         </div>
       </div>

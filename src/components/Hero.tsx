@@ -23,11 +23,6 @@ export function Hero() {
 
   useGSAP(
     () => {
-      const prefersReduced = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-      if (prefersReduced) return;
-
       if (desktopImgRef.current) {
         gsap.to(desktopImgRef.current, {
           y: 55,

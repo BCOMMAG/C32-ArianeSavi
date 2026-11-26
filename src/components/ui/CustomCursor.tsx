@@ -12,10 +12,7 @@ export function CustomCursor() {
     const isFinePointer = window.matchMedia(
       "(hover: hover) and (pointer: fine)"
     ).matches;
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (!isFinePointer || prefersReducedMotion) return;
+    if (!isFinePointer) return;
 
     const dot = cursorDotRef.current;
     const ring = cursorRingRef.current;

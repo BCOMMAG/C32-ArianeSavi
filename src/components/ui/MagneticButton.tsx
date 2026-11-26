@@ -19,7 +19,6 @@ export function MagneticButton({
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
 
     const xTo = gsap.quickTo(el, "x", { duration: 0.65, ease: "power3.out" });

@@ -23,11 +23,6 @@ export function EducationalSection() {
 
   useGSAP(
     () => {
-      const prefersReduced = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-      if (prefersReduced) return;
-
       gsap.fromTo(
         ".edu-card",
         { y: 46, scale: 0.96, opacity: 0 },

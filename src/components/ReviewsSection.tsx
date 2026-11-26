@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -22,71 +22,11 @@ if (typeof window !== "undefined") {
 
 export function ReviewsSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const tweenRef = useRef<gsap.core.Tween | null>(null);
-
   const [isPausedByUser, setIsPausedByUser] = useState(false);
-
-  // Motor Marquee GPU contínuo via GSAP translateX(-50%)
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-
-    gsap.set(track, { xPercent: 0 });
-
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      return;
-    }
-
-    const tween = gsap.to(track, {
-      xPercent: -50,
-      duration: 32,
-      ease: "none",
-      repeat: -1,
-    });
-
-    tweenRef.current = tween;
-
-    return () => {
-      tween.kill();
-      tweenRef.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    const tween = tweenRef.current;
-    if (!tween) return;
-    if (isPausedByUser) {
-      gsap.to(tween, { timeScale: 0, duration: 0.35, ease: "power2.out" });
-    } else {
-      tween.play();
-      gsap.to(tween, { timeScale: 1, duration: 0.45, ease: "power2.out" });
-    }
-  }, [isPausedByUser]);
-
-  const handleMouseEnter = () => {
-    if (tweenRef.current && !isPausedByUser) {
-      gsap.to(tweenRef.current, { timeScale: 0, duration: 0.35, ease: "power2.out" });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (tweenRef.current && !isPausedByUser) {
-      tweenRef.current.play();
-      gsap.to(tweenRef.current, { timeScale: 1, duration: 0.45, ease: "power2.out" });
-    }
-  };
+  const [manualOffset, setManualOffset] = useState(0);
 
   useGSAP(
     () => {
-      const prefersReduced = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-      if (prefersReduced) return;
-
       gsap.fromTo(
         ".reviews-header",
         { y: 36, opacity: 0 },
@@ -107,21 +47,19 @@ export function ReviewsSection() {
   );
 
   const stepReview = (dir: number) => {
-    const tween = tweenRef.current;
-    if (!tween) return;
-    const step = 1 / GOOGLE_REVIEWS.length;
-    const target = (tween.progress() + dir * step + 1) % 1;
-    gsap.to(tween, {
-      progress: target,
-      duration: 0.55,
-      ease: "power2.out",
+    setManualOffset((prev) => {
+      const next = prev - dir * 355;
+      const limit = GOOGLE_REVIEWS.length * 355;
+      if (next < -limit) return 0;
+      if (next > 355) return 0;
+      return next;
     });
   };
 
   const renderReviewCard = (review: GoogleReview, keyPrefix: string) => (
     <article
       key={keyPrefix}
-      className="w-[300px] sm:w-[360px] shrink-0 p-6 sm:p-7 rounded-2xl bg-[#EFE9DF]/85 dark:bg-[#380B1C] border border-[#9E825C]/25 dark:border-[#C8AE88]/20 hover:border-[#9E825C] dark:hover:border-[#C8AE88] hover:-translate-y-1.5 transition-all duration-350 flex flex-col justify-between gap-5 shadow-xs hover:shadow-lg"
+      className="w-[295px] sm:w-[360px] shrink-0 p-6 sm:p-7 rounded-2xl bg-[#EFE9DF]/85 dark:bg-[#380B1C] border border-[#9E825C]/25 dark:border-[#C8AE88]/20 hover:border-[#9E825C] dark:hover:border-[#C8AE88] hover:-translate-y-1.5 transition-all duration-350 flex flex-col justify-between gap-5 shadow-xs hover:shadow-lg"
     >
       <div>
         <div className="flex items-center justify-between mb-4">
@@ -229,25 +167,31 @@ export function ReviewsSection() {
         </div>
       </div>
 
-      {/* Marquee GPU Full-Bleed */}
-      <div
-        className="relative z-10 w-full overflow-hidden py-3"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
+      {/* Marquee CSS GPU Contínuo Full-Bleed */}
+      <div className="marquee-wrapper relative z-10 w-full overflow-hidden py-3">
         <div className="hidden md:block pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#F9F6F0] dark:from-[#2B0815] to-transparent z-20" />
         <div className="hidden md:block pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#F9F6F0] dark:from-[#2B0815] to-transparent z-20" />
 
-        <div ref={trackRef} className="flex w-max will-change-transform">
-          <div className="flex items-stretch gap-5 pr-5">
-            {GOOGLE_REVIEWS.map((rev, idx) =>
-              renderReviewCard(rev, `rev-g1-${rev.id}-${idx}`)
-            )}
-          </div>
-          <div className="flex items-stretch gap-5 pr-5" aria-hidden="true">
-            {GOOGLE_REVIEWS.map((rev, idx) =>
-              renderReviewCard(rev, `rev-g2-${rev.id}-${idx}`)
-            )}
+        <div
+          className="transition-transform duration-500 ease-out"
+          style={{ transform: `translate3d(${manualOffset}px, 0, 0)` }}
+        >
+          <div
+            className="marquee-track animate-marquee-reviews flex w-max will-change-transform"
+            style={{
+              animationPlayState: isPausedByUser ? "paused" : "running",
+            }}
+          >
+            <div className="flex items-stretch gap-5 pr-5">
+              {GOOGLE_REVIEWS.map((rev, idx) =>
+                renderReviewCard(rev, `rev-g1-${rev.id}-${idx}`)
+              )}
+            </div>
+            <div className="flex items-stretch gap-5 pr-5" aria-hidden="true">
+              {GOOGLE_REVIEWS.map((rev, idx) =>
+                renderReviewCard(rev, `rev-g2-${rev.id}-${idx}`)
+              )}
+            </div>
           </div>
         </div>
       </div>

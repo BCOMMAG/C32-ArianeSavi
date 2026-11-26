@@ -116,6 +116,27 @@
   animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+@keyframes marqueeInfinite {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-marquee-areas {
+  animation: marqueeInfinite 38s linear infinite;
+}
+
+.animate-marquee-reviews {
+  animation: marqueeInfinite 30s linear infinite;
+}
+
+.marquee-wrapper:hover .marquee-track {
+  animation-play-state: paused !important;
+}
+
 /* Signature hairline gold dividers */
 .gold-divider-v {
   width: 1px;

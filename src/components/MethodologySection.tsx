@@ -40,11 +40,6 @@ export function MethodologySection() {
 
   useGSAP(
     () => {
-      const prefersReduced = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-      if (prefersReduced) return;
-
       gsap.fromTo(
         ".method-reveal",
         { y: 26, opacity: 0 },
